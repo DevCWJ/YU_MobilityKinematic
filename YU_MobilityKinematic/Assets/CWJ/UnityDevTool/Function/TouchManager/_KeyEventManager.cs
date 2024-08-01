@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using CWJ.Singleton.SwapSingleton;
 
@@ -7,36 +8,48 @@ using UnityEngine.Events;
 
 namespace CWJ
 {
-    [AddComponentMenu("Scripts/" + nameof(CWJ) + "/CWJ_" + nameof(TouchManager))]
-    public class TouchManager : SingletonBehaviourDontDestroy_Swap<TouchManager>
+    [AddComponentMenu("Scripts/" + nameof(CWJ) + "/CWJ_" + nameof(_KeyEventManager))]
+    public class _KeyEventManager : SingletonBehaviourDontDestroy_Swap<_KeyEventManager>
     {
+        [DrawHeaderAndLine("Variable For Check")]
+        [Tooltip("등록된 Listener가 있어야 체크가능")]
+        [Readonly, SerializeField] private bool _isHoldDown;//클릭중인지
+
+        public bool isHoldDown { get => _isHoldDown; protected set => _isHoldDown = value; }
+
+        [Tooltip("등록된 Listener가 있어야 체크가능")]
+        [Readonly, SerializeField] private bool _isCursorMoving; //클릭후 포인터를 이동중인지
+
+        public bool isCursorMoving { get => _isCursorMoving; protected set => _isCursorMoving = value; }
+
 #if UNITY_EDITOR
 
-        [UnityEditor.MenuItem("GameObject/" + nameof(CWJ) + "/" + nameof(TouchManager), false, 10)]
+        [UnityEditor.MenuItem("GameObject/" + nameof(CWJ) + "/" + nameof(_KeyEventManager), false, 10)]
         public static void CreateTouchManager()
         {
             Transform backupParent = UnityEditor.Selection.activeTransform;
 
             if (IsExists)
             {
-                UnityEditor.Selection.activeTransform = FindUtil.FindObjectOfType_New<TouchManager>(false, false).transform;
+                UnityEditor.Selection.activeTransform = FindUtil.FindObjectOfType_New<_KeyEventManager>(false, false).transform;
                 return;
             }
 
-            GameObject newObj = new GameObject(nameof(TouchManager), typeof(TouchManager));
+            GameObject newObj = new GameObject(nameof(_KeyEventManager), typeof(_KeyEventManager));
             newObj.transform.SetParent(backupParent);
             newObj.transform.Reset();
             UnityEditor.Selection.activeObject = newObj;
         }
 
 #endif
-
+        [DrawHeaderAndLine("")]
+        [Space]
         /// <summary>
         /// Editor 디버깅용
         /// </summary>
         [Readonly] [SerializeField] protected bool isMobile;
 
-        public TouchListener[] touchListeners = new TouchListener[0];
+        public KeyListener[] touchListeners = new KeyListener[0];
 
         protected UnityEvent[] touchEvents = new UnityEvent[5]
         {
@@ -49,27 +62,20 @@ namespace CWJ
 
         protected UnityEvent onUpdateEnded = new UnityEvent();
 
-        [Foldout("Variable For Check")]
-        [Readonly, SerializeField] private bool _isHoldDown;//클릭중인지
 
-        public bool isHoldDown { get => _isHoldDown; protected set => _isHoldDown = value; }
 
-        [Foldout("Variable For Check")]
-        [Readonly, SerializeField] private bool _isMoving; //클릭후 포인터를 이동중인지
-
-        public bool isMoving { get => _isMoving; protected set => _isMoving = value; }
-
-        public virtual bool AddTouchListener(TouchListener listener)
+        public virtual bool AddKeyListener(KeyListener listener)
         {
             if (ArrayUtil.IsExists(touchListeners, listener)) //중복 추가 방지
             {
                 return false;
             }
             ArrayUtil.Add(ref touchListeners, listener);
+
             return true;
         }
 
-        public virtual bool RemoveTouchListener(TouchListener listener)
+        public virtual bool RemoveKeyListener(KeyListener listener)
         {
             if (!ArrayUtil.IsExists(touchListeners, listener)) //제거 반복 방지
             {
@@ -102,16 +108,16 @@ namespace CWJ
             isMobile = false;
 #endif
 #endif
-            return isMobile ? typeof(TouchManager_Mobile) : typeof(TouchManager_PC);
+            return isMobile ? typeof(TouchManager_Mobile) : typeof(KeyEventManager_PC);
         }
 
-        protected override void SwapSetting(TouchManager newComp)
+        protected override void SwapSetting(_KeyEventManager newComp)
         {
             newComp.isMobile = isMobile;
 
             for (int i = 0; i < touchListeners.Length; i++)
             {
-                newComp.AddTouchListener(touchListeners[i]);
+                newComp.AddKeyListener(touchListeners[i]);
             }
         }
     }

@@ -118,11 +118,11 @@ namespace CWJ.EzPaint
             paintSystemObj.SetLayer(EzPaintLayer);
             paintSystem = (Is3DPaintManager_Editor ? paintSystemObj.AddComponent<EzPaintSystem_3D>() as EzPaintSystem : paintSystemObj.AddComponent<EzPaintSystem_2D>() as EzPaintSystem);
 
-            GameObject touchListenerObj = new GameObject($"{nameof(TouchListener)}_{nameof(EzPaint)}");
+            GameObject touchListenerObj = new GameObject($"{nameof(KeyListener)}_{nameof(EzPaint)}");
             touchListenerObj.transform.SetParentAndReset(transform);
-            touchListener = touchListenerObj.AddComponent<TouchListener>();
+            touchListener = touchListenerObj.AddComponent<KeyListener>();
 
-            TouchManager.UpdateInstance(false);
+            _KeyEventManager.UpdateInstance(false);
 
             UnityEditor.Selection.activeGameObject = touchListener.gameObject;
             transform.hasChanged = true;
@@ -132,7 +132,7 @@ namespace CWJ.EzPaint
                 UnityEditor.Selection.activeGameObject = touchListener.gameObject;
                 touchListener.isMultiTouchOnly = false;
                 ResetAddListener(touchListener.onTouchBegan, paintSystem.TouchHandler_HoldDown);
-                ResetAddListener(touchListener.onTouchMoved, paintSystem.TouchHandler_HoldDown);
+                ResetAddListener(touchListener.onTouchMoving, paintSystem.TouchHandler_HoldDown);
                 ResetAddListener(touchListener.onTouchEnded, paintSystem.TouchHandler_Ended);
                 //touchListener.onUpdateEnded.AddListener_New(paintSystem.TouchHandler_UpdateEnded);
 
@@ -151,7 +151,7 @@ namespace CWJ.EzPaint
 #endif
 
         [ErrorIfNull] public EzPaintSystem paintSystem;
-        [ErrorIfNull] public TouchListener touchListener;
+        [ErrorIfNull] public KeyListener touchListener;
 
         protected override void _OnEnable()
         {

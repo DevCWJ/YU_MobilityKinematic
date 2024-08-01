@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace CWJ
 {
-    public class TouchManager_Mobile : TouchManager
+    public class TouchManager_Mobile : _KeyEventManager
     {
         //멀티터치O
         protected int detectMultiTouchNeedCount = 0; //멀티터치 인식 필요한 리스너 수
@@ -21,9 +21,9 @@ namespace CWJ
 
         private UnityEvent multi_onUpdateEnded = new UnityEvent();
 
-        public override sealed bool AddTouchListener(TouchListener listener)
+        public override sealed bool AddKeyListener(KeyListener listener)
         {
-            if (!base.AddTouchListener(listener))
+            if (!base.AddKeyListener(listener))
             {
                 return false;
             }
@@ -48,18 +48,15 @@ namespace CWJ
                 onUpdateEnded.AddListener_New(listener.onUpdateEnded.Invoke, false);
             }
 
-            ArrayUtil.Add(ref touchListeners, listener);
             return true;
         }
 
-        public override sealed bool RemoveTouchListener(TouchListener listener)
+        public override sealed bool RemoveKeyListener(KeyListener listener)
         {
-            if (!base.RemoveTouchListener(listener))
+            if (!base.RemoveKeyListener(listener))
             {
                 return false;
             }
-
-            ArrayUtil.Remove(ref touchListeners, listener);
 
             if (listener.isMultiTouchOnly) //멀티터치 인식/처리 했던것인지
             {
@@ -87,11 +84,11 @@ namespace CWJ
         {
             if (Input.touchCount == 0) //for S-Pen input (★☆ Only supported on Unity 2018.4.13f1 and later ☆★) ..Tlqkf
             {
-                MousePhase mousePhase = MousePhase.None;
+                EKeyState mousePhase = EKeyState.None;
 
                 if (Input.GetKeyDown(KeyCode.Mouse0))
                 {
-                    mousePhase = MousePhase.Began;
+                    mousePhase = EKeyState.Began;
                 }
                 else if (Input.GetKey(KeyCode.Mouse0))
                 {
@@ -99,7 +96,7 @@ namespace CWJ
                 }
                 else if (Input.GetKeyUp(KeyCode.Mouse0))
                 {
-                    mousePhase = MousePhase.Ended;
+                    mousePhase = EKeyState.Ended;
                     if (CO_StationaryCheck != null)
                     {
                         StopCoroutine(CO_StationaryCheck);
@@ -107,10 +104,10 @@ namespace CWJ
                     }
                 }
 
-                isHoldDown = mousePhase < MousePhase.Ended;
-                isMoving = mousePhase == MousePhase.Moved;
+                isHoldDown = mousePhase < EKeyState.Ended;
+                isCursorMoving = mousePhase == EKeyState.Move;
 
-                if (mousePhase != MousePhase.None)
+                if (mousePhase != EKeyState.None)
                 {
                     touchEvents[mousePhase.ToInt()]?.Invoke();
                 }
@@ -119,7 +116,7 @@ namespace CWJ
             {// Touch
                 TouchPhase touchPhase = Input.GetTouch(0).phase;
                 isHoldDown = touchPhase < TouchPhase.Ended;
-                isMoving = touchPhase == TouchPhase.Moved;
+                isCursorMoving = touchPhase == TouchPhase.Moved;
                 touchEvents[touchPhase.ToInt()]?.Invoke();
 
                 if (detectMultiTouchNeedCount > 0) //멀티터치이벤트 있을경우
@@ -150,22 +147,22 @@ namespace CWJ
         }
 
         //GetAxisRaw 가 버그가있어서 코루틴필요
-        private MousePhase GetPhaseWhenMousePressed()
+        private EKeyState GetPhaseWhenMousePressed()
         {
             if (GetMouseStationary())
             {
-                if (isMoving)
+                if (isCursorMoving)
                 {
                     if (CO_StationaryCheck == null)
                     {
                         CO_StationaryCheck = DO_StationaryCheck();
                         StartCoroutine(CO_StationaryCheck);
                     }
-                    return MousePhase.Moved;
+                    return EKeyState.Move;
                 }
                 else
                 {
-                    return MousePhase.Stationary;
+                    return EKeyState.Stationary;
                 }
             }
             else
@@ -176,7 +173,7 @@ namespace CWJ
                     CO_StationaryCheck = null;
                 }
 
-                return MousePhase.Moved;
+                return EKeyState.Move;
             }
         }
 
@@ -187,7 +184,7 @@ namespace CWJ
 
             if (GetMouseStationary())
             {
-                isMoving = false;
+                isCursorMoving = false;
             }
 
             CO_StationaryCheck = null;

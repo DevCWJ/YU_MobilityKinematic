@@ -3,9 +3,11 @@ using UnityEngine.Events;
 
 namespace CWJ
 {
-    [AddComponentMenu("Scripts/" + nameof(CWJ) + "/CWJ_" + nameof(TouchListener))]
-    public class TouchListener : MonoBehaviour
+    [AddComponentMenu("Scripts/" + nameof(CWJ) + "/CWJ_" + nameof(KeyListener))]
+    public class KeyListener : MonoBehaviour
     {
+        [SearchableEnum] public KeyCode detectTargetKey = KeyCode.Mouse0;
+
         [Tooltip("mobile only\n멀티 터치 전용 이벤트일 시 체크")]
         [ReadonlyConditional(EPlayMode.PlayMode)] public bool isMultiTouchOnly;
 
@@ -13,8 +15,7 @@ namespace CWJ
 
         [Space]
         public UnityEvent onTouchBegan = new UnityEvent();//터치 시작 이벤트
-
-        public UnityEvent onTouchMoved = new UnityEvent(); //홀드 터치 움직임 이벤트
+        public UnityEvent onTouchMoving = new UnityEvent(); //홀드 터치 움직임 이벤트
         public UnityEvent onTouchStationary = new UnityEvent(); //홀드 터치 고정 이벤트
         public UnityEvent onTouchEnded = new UnityEvent(); //터치 종료 이벤트
 
@@ -28,7 +29,7 @@ namespace CWJ
         {
             touchEvents = new UnityEvent[5];
             touchEvents[0] = onTouchBegan;
-            touchEvents[1] = onTouchMoved;
+            touchEvents[1] = onTouchMoving;
             touchEvents[2] = onTouchStationary;
             touchEvents[3] = onTouchEnded;
             touchEvents[4] = onTouchCanceled;
@@ -36,15 +37,15 @@ namespace CWJ
 
         private void OnEnable()
         {
-            TouchManager.Instance?.AddTouchListener(this);
-            Debug.LogWarning($"{ nameof(TouchManager) }에 { nameof(TouchListener) } 추가");
+            _KeyEventManager.Instance?.AddKeyListener(this);
+            Debug.LogWarning($"{nameof(_KeyEventManager)}에 {nameof(KeyListener)} 추가", gameObject);
         }
 
         private void OnDisable()
         {
             if (MonoBehaviourEventHelper.IS_QUIT) return;
-            TouchManager.Instance?.RemoveTouchListener(this);
-            Debug.LogWarning($"{ nameof(TouchManager) }에 { nameof(TouchListener) } 제거");
+            _KeyEventManager.Instance?.RemoveKeyListener(this);
+            Debug.LogWarning($"{ nameof(_KeyEventManager) }에 { nameof(KeyListener) } 제거", gameObject);
         }
     }
 }
