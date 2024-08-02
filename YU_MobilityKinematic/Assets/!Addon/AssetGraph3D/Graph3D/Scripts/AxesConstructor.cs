@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+using TMPro;
 
 [ExecuteInEditMode]
 public class AxesConstructor : MonoBehaviour
@@ -17,10 +17,10 @@ public class AxesConstructor : MonoBehaviour
     [SerializeField]
     private float _sizeX = 500, _sizeY = 500, _sizeZ = 500; 
 
-    private Transform X, Xf, Xb, Xd;
-    private Transform Y, Yl, Yf, Yr;
-    private Transform Z, Zf, Zb, Zd;
-    private Transform labelX, labelY, labelZ;
+    private LineRenderer X, Xf, Xb, Xd;
+    private LineRenderer Y, Yl, Yf, Yr;
+    private LineRenderer Z, Zf, Zb, Zd;
+    private TextMeshPro labelX, labelY, labelZ;
     private Transform XScaleL, XScaleH;
     private Transform YScaleL, YScaleH;
     private Transform ZScaleL, ZScaleH;
@@ -32,31 +32,31 @@ public class AxesConstructor : MonoBehaviour
 
     private void Init()
     {
-        X = axesCenter.Find("X").GetComponent<Transform>();
-        Xf = X.Find("Xf").GetComponent<Transform>();
-        Xb = X.Find("Xb").GetComponent<Transform>();
-        Xd = X.Find("Xd").GetComponent<Transform>();
+        X = axesCenter.Find("X").GetComponent<LineRenderer>();
+        Xf = X.transform.Find("Xf").GetComponent<LineRenderer>();
+        Xb = X.transform.Find("Xb").GetComponent<LineRenderer>();
+        Xd = X.transform.Find("Xd").GetComponent<LineRenderer>();
 
-        Y = axesCenter.Find("Y").GetComponent<Transform>();
-        Yl = Y.Find("Yl").GetComponent<Transform>();
-        Yf = Y.Find("Yf").GetComponent<Transform>();
-        Yr = Y.Find("Yr").GetComponent<Transform>();
+        Y = axesCenter.Find("Y").GetComponent<LineRenderer>();
+        Yl = Y.transform.Find("Yl").GetComponent<LineRenderer>();
+        Yf = Y.transform.Find("Yf").GetComponent<LineRenderer>();
+        Yr = Y.transform.Find("Yr").GetComponent<LineRenderer>();
 
-        Z = axesCenter.Find("Z").GetComponent<Transform>();
-        Zf = Z.Find("Zf").GetComponent<Transform>();
-        Zb = Z.Find("Zb").GetComponent<Transform>();
-        Zd = Z.Find("Zd").GetComponent<Transform>();
+        Z = axesCenter.Find("Z").GetComponent<LineRenderer>();
+        Zf = Z.transform.Find("Zf").GetComponent<LineRenderer>();
+        Zb = Z.transform.Find("Zb").GetComponent<LineRenderer>();
+        Zd = Z.transform.Find("Zd").GetComponent<LineRenderer>();
 
-        labelX = X.Find("Label");
-        labelY = Y.Find("Label");
-        labelZ = Z.Find("Label");
+        labelX = X.transform.Find("Label").GetComponent<TextMeshPro>();
+        labelY = Y.transform.Find("Label").GetComponent<TextMeshPro>();
+        labelZ = Z.transform.Find("Label").GetComponent<TextMeshPro>();
 
-        XScaleL = X.Find("ScaleL");
-        XScaleH = X.Find("ScaleH");
-        YScaleL = Yf.Find("ScaleL");
-        YScaleH = Yf.Find("ScaleH");
-        ZScaleL = Zd.Find("ScaleL");
-        ZScaleH = Zd.Find("ScaleH");
+        XScaleL = X.transform.Find("ScaleL");
+        XScaleH = X.transform.Find("ScaleH");
+        YScaleL = Yf.transform.Find("ScaleL");
+        YScaleH = Yf.transform.Find("ScaleH");
+        ZScaleL = Zd.transform.Find("ScaleL");
+        ZScaleH = Zd.transform.Find("ScaleH");
     }
 
 
@@ -94,63 +94,63 @@ public class AxesConstructor : MonoBehaviour
         //CenterAxe
         axesCenter.localPosition = new Vector3(axesPivot.localPosition.x - sizeX / 2, axesPivot.localPosition.y - sizeY / 2, axesPivot.localPosition.z - sizeZ / 2);
         //X
-        X.position = axesCenter.position;
-        X.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
-        X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(sizeX, 0, 0));
+        X.transform.position = axesCenter.position;
+        X.SetPosition(0, new Vector3(0, 0, 0));
+        X.SetPosition(1, new Vector3(sizeX, 0, 0));
         //Xf
-        Xf.position = X.position;
-        Xf.localPosition += new Vector3(0, sizeY, 0);          
-        Xf.GetComponent<LineRenderer>().SetPosition(0, X.GetComponent<LineRenderer>().GetPosition(0));
-        Xf.GetComponent<LineRenderer>().SetPosition(1, X.GetComponent<LineRenderer>().GetPosition(1));
+        Xf.transform.position = X.transform.position;
+        Xf.transform.localPosition += new Vector3(0, sizeY, 0);
+        Xf.SetPosition(0, X.GetPosition(0));
+        Xf.SetPosition(1, X.GetPosition(1));
         //Xb
-        Xb.position = X.position;
-        Xb.localPosition += new Vector3(0, sizeY, sizeZ);
-        Xb.GetComponent<LineRenderer>().SetPosition(0, X.GetComponent<LineRenderer>().GetPosition(0));
-        Xb.GetComponent<LineRenderer>().SetPosition(1, X.GetComponent<LineRenderer>().GetPosition(1));
+        Xb.transform.position = X.transform.position;
+        Xb.transform.localPosition += new Vector3(0, sizeY, sizeZ);
+        Xb.SetPosition(0, X.GetPosition(0));
+        Xb.SetPosition(1, X.GetPosition(1));
         //Xd
-        Xd.position = X.position;
-        Xd.localPosition += new Vector3(0, 0, sizeZ);
-        Xd.GetComponent<LineRenderer>().SetPosition(0, X.GetComponent<LineRenderer>().GetPosition(0));
-        Xd.GetComponent<LineRenderer>().SetPosition(1, X.GetComponent<LineRenderer>().GetPosition(1));
+        Xd.transform.position = X.transform.position;
+        Xd.transform.localPosition += new Vector3(0, 0, sizeZ);
+        Xd.SetPosition(0, X.GetPosition(0));
+        Xd.SetPosition(1, X.GetPosition(1));
         //Y
-        Y.position = axesCenter.position;
-        Y.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
-        Y.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, sizeY, 0));
+        Y.transform.position = axesCenter.position;
+        Y.SetPosition(0, new Vector3(0, 0, 0));
+        Y.SetPosition(1, new Vector3(0, sizeY, 0));
         //Yl
-        Yl.position = Y.position;
-        Yl.localPosition += new Vector3(sizeX, 0, 0);
-        Yl.GetComponent<LineRenderer>().SetPosition(0, Y.GetComponent<LineRenderer>().GetPosition(0));
-        Yl.GetComponent<LineRenderer>().SetPosition(1, Y.GetComponent<LineRenderer>().GetPosition(1));
+        Yl.transform.position = Y.transform.position;
+        Yl.transform.localPosition += new Vector3(sizeX, 0, 0);
+        Yl.SetPosition(0, Y.GetPosition(0));
+        Yl.SetPosition(1, Y.GetPosition(1));
         //Yr
-        Yr.position = Y.position;
-        Yr.localPosition += new Vector3(0, 0, sizeZ);
-        Yr.GetComponent<LineRenderer>().SetPosition(0, Y.GetComponent<LineRenderer>().GetPosition(0));
-        Yr.GetComponent<LineRenderer>().SetPosition(1, Y.GetComponent<LineRenderer>().GetPosition(1));
+        Yr.transform.position = Y.transform.position;
+        Yr.transform.localPosition += new Vector3(0, 0, sizeZ);
+        Yr.SetPosition(0, Y.GetPosition(0));
+        Yr.SetPosition(1, Y.GetPosition(1));
         //Yf
-        Yf.position = Y.position;
-        Yf.localPosition += new Vector3(sizeX, 0, sizeZ);
-        Yf.GetComponent<LineRenderer>().SetPosition(0, Y.GetComponent<LineRenderer>().GetPosition(0));
-        Yf.GetComponent<LineRenderer>().SetPosition(1, Y.GetComponent<LineRenderer>().GetPosition(1));
+        Yf.transform.position = Y.transform.position;
+        Yf.transform.localPosition += new Vector3(sizeX, 0, sizeZ);
+        Yf.SetPosition(0, Y.GetPosition(0));
+        Yf.SetPosition(1, Y.GetPosition(1));
         //Z
-        Z.position = axesCenter.position;
-        Z.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
-        Z.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, sizeZ));
-        X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(sizeX, 0, 0));
+        Z.transform.position = axesCenter.position;
+        Z.SetPosition(0, new Vector3(0, 0, 0));
+        Z.SetPosition(1, new Vector3(0, 0, sizeZ));
+        X.SetPosition(1, new Vector3(sizeX, 0, 0));
         //Zf
-        Zf.position = Z.position;
-        Zf.localPosition += new Vector3(sizeX, sizeY, 0);
-        Zf.GetComponent<LineRenderer>().SetPosition(0, Z.GetComponent<LineRenderer>().GetPosition(0));
-        Zf.GetComponent<LineRenderer>().SetPosition(1, Z.GetComponent<LineRenderer>().GetPosition(1));
+        Zf.transform.position = Z.transform.position;
+        Zf.transform.localPosition += new Vector3(sizeX, sizeY, 0);
+        Zf.SetPosition(0, Z.GetPosition(0));
+        Zf.SetPosition(1, Z.GetPosition(1));
         //Zb
-        Zb.position = Z.position;
-        Zb.localPosition += new Vector3(0, sizeY, 0);
-        Zb.GetComponent<LineRenderer>().SetPosition(0, Z.GetComponent<LineRenderer>().GetPosition(0));
-        Zb.GetComponent<LineRenderer>().SetPosition(1, Z.GetComponent<LineRenderer>().GetPosition(1));
+        Zb.transform.position = Z.transform.position;
+        Zb.transform.localPosition += new Vector3(0, sizeY, 0);
+        Zb.SetPosition(0, Z.GetPosition(0));
+        Zb.SetPosition(1, Z.GetPosition(1));
         //Zd
-        Zd.position = Z.position;
-        Zd.localPosition += new Vector3(sizeX, 0, 0);
-        Zd.GetComponent<LineRenderer>().SetPosition(0, Z.GetComponent<LineRenderer>().GetPosition(0));
-        Zd.GetComponent<LineRenderer>().SetPosition(1, Z.GetComponent<LineRenderer>().GetPosition(1));
+        Zd.transform.position = Z.transform.position;
+        Zd.transform.localPosition += new Vector3(sizeX, 0, 0);
+        Zd.SetPosition(0, Z.GetPosition(0));
+        Zd.SetPosition(1, Z.GetPosition(1));
     }    
 
     private void DataChanged()
@@ -169,22 +169,22 @@ public class AxesConstructor : MonoBehaviour
         //Debug.Log("OnValidate ( )");
         sizeX = _sizeX ;
         sizeY = _sizeY ;
-        sizeZ = _sizeZ ;   
+        sizeZ = _sizeZ ;
 
-        labelX.GetComponent<Text>().text = LabelX; 
-        labelY.GetComponent<Text>().text = LabelY;
-        labelZ.GetComponent<Text>().text = LabelZ;
+        labelX.SetText(LabelX);
+        labelY.SetText(LabelY);
+        labelZ.SetText(LabelZ);
 
-        labelX.localPosition = new Vector3(X.GetComponent<LineRenderer>().GetPosition(1).x, Y.GetComponent<LineRenderer>().GetPosition(1).y, 0);
-        labelY.localPosition = new Vector3(0, Y.GetComponent<LineRenderer>().GetPosition(1).y, 0);
-        labelZ.localPosition = new Vector3(0, Y.GetComponent<LineRenderer>().GetPosition(1).y, Z.GetComponent<LineRenderer>().GetPosition(1).z);
+        labelX.transform.localPosition = new Vector3(X.GetPosition(1).x, Y.GetPosition(1).y, 0);
+        labelY.transform.localPosition = new Vector3(0, Y.GetPosition(1).y, 0);
+        labelZ.transform.localPosition = new Vector3(0, Y.GetPosition(1).y, Z.GetPosition(1).z);
 
-        XScaleL.localPosition = new Vector3(X.GetComponent<LineRenderer>().GetPosition(0).x + 40f, 0, 0);
-        XScaleH.localPosition = new Vector3(X.GetComponent<LineRenderer>().GetPosition(1).x - 40f, 0, 0);
-        YScaleL.localPosition = new Vector3(0, Yf.GetComponent<LineRenderer>().GetPosition(0).y + 40f, 0);
-        YScaleH.localPosition = new Vector3(0, Yf.GetComponent<LineRenderer>().GetPosition(1).y - 40f, 0);
-        ZScaleL.localPosition = new Vector3(0, 0, Zd.GetComponent<LineRenderer>().GetPosition(0).z + 40f);
-        ZScaleH.localPosition = new Vector3(0, 0, Zd.GetComponent<LineRenderer>().GetPosition(1).z - 40f);        
+        XScaleL.localPosition = new Vector3(X.GetPosition(0).x + 40f, 0, 0);
+        XScaleH.localPosition = new Vector3(X.GetPosition(1).x - 40f, 0, 0);
+        YScaleL.localPosition = new Vector3(0, Yf.GetPosition(0).y + 40f, 0);
+        YScaleH.localPosition = new Vector3(0, Yf.GetPosition(1).y - 40f, 0);
+        ZScaleL.localPosition = new Vector3(0, 0, Zd.GetPosition(0).z + 40f);
+        ZScaleH.localPosition = new Vector3(0, 0, Zd.GetPosition(1).z - 40f);        
     }  
 
 }

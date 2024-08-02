@@ -97,6 +97,19 @@ namespace CWJ.EzPaint
             OutlineSetActive(false);
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse0))
+            {
+                TouchHandler_HoldDown();
+            }else
+            {
+                TouchHandler_Ended();
+            }
+        }
+
+        Vector2 tmp;
+        Vector3 hitPoint;
         public override sealed void TouchHandler_HoldDown()
         {
             Ray ray = targetCamera.ScreenPointToRay(Input.mousePosition);
@@ -105,6 +118,19 @@ namespace CWJ.EzPaint
             {
                 //PaintOnSprite(hit.point);
                 PaintOnSprite(hit.point);
+                if (prevDragPos == tmp)
+                {
+                    Debug.LogError("?");
+                }
+                else
+                {
+                    tmp = prevDragPos;
+                    if(hitPoint== hit.point)
+                    {
+                        Debug.LogError("!?!?!");
+                    }
+                }
+                hitPoint = hit.point;
 #if UNITY_EDITOR
                 Debug.DrawLine(ray.origin, hit.point, penColor, Time.deltaTime);
 #endif
@@ -117,6 +143,7 @@ namespace CWJ.EzPaint
 
         public override sealed void TouchHandler_Ended()
         {
+            Debug.LogError("End");
             prevDragPos = Vector2.zero;            
             SaveLastDraw();
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
+using TMPro;
 
 //The MerkerChart3D class is intended for displaying a merker on a graph with showing the value of the function and auxiliary lines along the axes
 //Класс MerkerChart3D предназначен для отображения меркера на графике с показом значения функции и вспомогательных линий по осям
@@ -104,11 +105,11 @@ public class MerkerChart3D : MonoBehaviour
             //Moving Merker Curve Objects to the Curves Parent of a Merker Object * Перемещение объектов кривых меркера в родителя Curves объекта Merker
             foreach (Graph3D.tCurve curve in listMerkers[index].curveArg1.listCurves)
             {
-                curve.objLine.transform.SetParent(listMerkers[index].obj.transform.Find("Curves"));
+                curve.objLine.transform.SetParent(listMerkers[index].obj.Find("Curves"));
             }
             foreach (Graph3D.tCurve curve in listMerkers[index].curveArg2.listCurves)
             {
-                curve.objLine.transform.SetParent(listMerkers[index].obj.transform.Find("Curves"));
+                curve.objLine.transform.SetParent(listMerkers[index].obj.Find("Curves"));
             }
         }
     }
@@ -119,10 +120,8 @@ public class MerkerChart3D : MonoBehaviour
         if (listMerkers == null) listMerkers = new List<Merker>(); 
         if (!listMerkers.Any(n => n.name == name))
         {
-            Merker merker = new Merker();
-            merker.obj = Instantiate(pMerker, merkersParentPath);
-            merker.obj.SetActive(false);
-            merker.name = name;   
+            Merker merker = new Merker(Instantiate(pMerker, merkersParentPath).transform, name);
+            merker.obj.gameObject.SetActive(false);
             listMerkers.Add(merker);
         }
         else
@@ -175,32 +174,32 @@ public class MerkerChart3D : MonoBehaviour
 
                         if ((func_screen - dataFunc.X.scaleAxe.LScreen) * (func_screen - dataFunc.X.scaleAxe.HScreen) > 0)
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(false);
-                            listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(0, new Vector3(-func_screen, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(false);
+                            listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(0, new Vector3(-func_screen, 0, 0));
                         }
                         else
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(true);
-                            listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(true);
+                            listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
                         }
 
-                        listMerkers[index].obj.transform.Find("X").localPosition = new Vector3(0, 0, 0);
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0));
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().text = ((Mathf.Round((func * factor))) / factor).ToString() + " " +  text;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0);
+                        listMerkers[index].X.transform.localPosition = new Vector3(0, 0, 0);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0));
+                        listMerkers[index].X_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " +  text);
+                        listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0);
 
-                        listMerkers[index].obj.transform.Find("Z").localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, -arg2_screen);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg1 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg1);
+                        listMerkers[index].Z.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, -arg2_screen);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
+                        listMerkers[index].Z_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
+                        listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg1);
 
-                        listMerkers[index].obj.transform.Find("Y").localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, -arg1_screen, 0);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg2 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg2, 0);
+                        listMerkers[index].Y.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, -arg1_screen, 0);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
+                        listMerkers[index].Y_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
+                        listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg2, 0);
 
 
                         break;
@@ -213,32 +212,32 @@ public class MerkerChart3D : MonoBehaviour
 
                         if ((func_screen - dataFunc.X.scaleAxe.LScreen) * (func_screen - dataFunc.X.scaleAxe.HScreen) > 0)
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(false);
-                            listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(0, new Vector3(-func_screen, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(false);
+                            listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(0, new Vector3(-func_screen, 0, 0));
                         }
                         else
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(true);
-                            listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(true);
+                            listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
                         }
 
-                        listMerkers[index].obj.transform.Find("X").localPosition = new Vector3(0, 0, 0);
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0));
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().text = ((Mathf.Round(func * factor)) / factor).ToString() + " " + text;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0);
+                        listMerkers[index].X.transform.localPosition = new Vector3(0, 0, 0);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0));
+                        listMerkers[index].X_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.SetText(((Mathf.Round(func * factor)) / factor).ToString() + " " + text);
+                        listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0);
 
-                        listMerkers[index].obj.transform.Find("Z").localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, -arg1_screen);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg2 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg2);
+                        listMerkers[index].Z.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, -arg1_screen);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
+                        listMerkers[index].Z_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
+                        listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg2);
 
-                        listMerkers[index].obj.transform.Find("Y").localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, -arg2_screen, 0);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg1 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg1, 0);
+                        listMerkers[index].Y.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, -arg2_screen, 0);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
+                        listMerkers[index].Y_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
+                        listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg1, 0);
                         break;
                     case Graph3D.TypeFunc.Y_ZX:
                         arg1_screen = dataFunc.Z.scaleFunc.Convert(arg1);
@@ -249,32 +248,32 @@ public class MerkerChart3D : MonoBehaviour
 
                         if ((func_screen - dataFunc.Y.scaleAxe.LScreen) * (func_screen - dataFunc.Y.scaleAxe.HScreen) > 0)
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(false);
-                            listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, -func_screen, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(false);
+                            listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, -func_screen, 0));
                         }
                         else
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(true);
-                            listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(true);
+                            listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
                         }
 
-                        listMerkers[index].obj.transform.Find("Y").localPosition = new Vector3(0, 0, 0);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0));
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().text = ((Mathf.Round((func * factor))) / factor).ToString() + " " + text;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
+                        listMerkers[index].Y.transform.localPosition = new Vector3(0, 0, 0);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0));
+                        listMerkers[index].Y_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
+                        listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
 
-                        listMerkers[index].obj.transform.Find("X").localPosition = new Vector3(-arg2_screen, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg1 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("X").Find("Label").transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg1, 0, 0);
+                        listMerkers[index].X.transform.localPosition = new Vector3(-arg2_screen, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
+                        listMerkers[index].X_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
+                        listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg1, 0, 0);
 
-                        listMerkers[index].obj.transform.Find("Z").localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, -arg1_screen);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg2 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg2);
+                        listMerkers[index].Z.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, -arg1_screen);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
+                        listMerkers[index].Z_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
+                        listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg2);
                         break;
                     case Graph3D.TypeFunc.Y_XZ:
                         arg1_screen = dataFunc.X.scaleFunc.Convert(arg1);
@@ -285,31 +284,31 @@ public class MerkerChart3D : MonoBehaviour
 
                         if ((func_screen - dataFunc.Y.scaleAxe.LScreen) * (func_screen - dataFunc.Y.scaleAxe.HScreen) > 0)
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(false);
-                            listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, -func_screen, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(false);
+                            listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, -func_screen, 0));
                         }
                         else
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(true);
-                            listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(true);
+                            listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
                         }
 
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0));
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().text = ((Mathf.Round((func * factor))) / factor).ToString() + " " + text;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0));
+                        listMerkers[index].Y_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
+                        listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
 
-                        listMerkers[index].obj.transform.Find("X").localPosition = new Vector3(-arg1_screen, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg2 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("X").Find("Label").transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg2, 0, 0);
+                        listMerkers[index].X.transform.localPosition = new Vector3(-arg1_screen, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
+                        listMerkers[index].X_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
+                        listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg2, 0, 0);
 
-                        listMerkers[index].obj.transform.Find("Z").localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, -arg2_screen);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg1 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg1);
+                        listMerkers[index].Z.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, -arg2_screen);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
+                        listMerkers[index].Z_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
+                        listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg1);
                         break;
                     case Graph3D.TypeFunc.Z_XY:
                         arg1_screen = dataFunc.X.scaleFunc.Convert(arg1);
@@ -320,32 +319,32 @@ public class MerkerChart3D : MonoBehaviour
 
                         if ((func_screen - dataFunc.Z.scaleAxe.LScreen) * (func_screen - dataFunc.Z.scaleAxe.HScreen) > 0)
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(false);
-                            listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, -func_screen));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(false);
+                            listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, -func_screen));
                         }
                         else
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(true);
-                            listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(true);
+                            listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
                         }
 
-                        listMerkers[index].obj.transform.Find("Z").localPosition = new Vector3(0, 0, 0);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen));
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().text = ((Mathf.Round((func * factor))) / factor).ToString() + " " + text;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
+                        listMerkers[index].Z.transform.localPosition = new Vector3(0, 0, 0);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen));
+                        listMerkers[index].Z_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
+                        listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
 
-                        listMerkers[index].obj.transform.Find("X").localPosition = new Vector3(-arg1_screen, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg2 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("X").Find("Label").transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg2, 0, 0);
+                        listMerkers[index].X.transform.localPosition = new Vector3(-arg1_screen, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
+                        listMerkers[index].X_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
+                        listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg2, 0, 0);
 
-                        listMerkers[index].obj.transform.Find("Y").localPosition = new Vector3(0, -arg2_screen, dataFunc.Z.scaleAxe.HScreen - func_screen);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg1 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg1, 0);
+                        listMerkers[index].Y.transform.localPosition = new Vector3(0, -arg2_screen, dataFunc.Z.scaleAxe.HScreen - func_screen);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
+                        listMerkers[index].Y_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
+                        listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg1, 0);
                         break;
                     case Graph3D.TypeFunc.Z_YX:
                         arg1_screen = dataFunc.Y.scaleFunc.Convert(arg1);
@@ -356,32 +355,32 @@ public class MerkerChart3D : MonoBehaviour
 
                         if ((func_screen - dataFunc.Z.scaleAxe.LScreen) * (func_screen - dataFunc.Z.scaleAxe.HScreen) > 0)
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(false);
-                            listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, -func_screen));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(false);
+                            listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, -func_screen));
                         }
                         else
                         {
-                            listMerkers[index].obj.transform.Find("Point").gameObject.SetActive(true);
-                            listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
+                            listMerkers[index].obj.Find("Point").gameObject.SetActive(true);
+                            listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(0, new Vector3(0, 0, 0));
                         }
 
-                        listMerkers[index].obj.transform.Find("Z").localPosition = new Vector3(0, 0, 0);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen));
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().text = ((Mathf.Round((func * factor))) / factor).ToString() + " " + text;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
+                        listMerkers[index].Z.transform.localPosition = new Vector3(0, 0, 0);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen));
+                        listMerkers[index].Z_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
+                        listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
 
-                        listMerkers[index].obj.transform.Find("X").localPosition = new Vector3(-arg2_screen, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg1 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("X").Find("Label").transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg1, 0, 0);
+                        listMerkers[index].X.transform.localPosition = new Vector3(-arg2_screen, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
+                        listMerkers[index].X_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
+                        listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg1, 0, 0);
 
-                        listMerkers[index].obj.transform.Find("Y").localPosition = new Vector3(0, -arg1_screen, dataFunc.Z.scaleAxe.HScreen - func_screen);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().text = ((Mathf.Round((arg2 * factor))) / factor).ToString();
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg2, 0);
+                        listMerkers[index].Y.transform.localPosition = new Vector3(0, -arg1_screen, dataFunc.Z.scaleAxe.HScreen - func_screen);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
+                        listMerkers[index].Y_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
+                        listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg2, 0);
                         break;
                     default:
                         break;
@@ -392,7 +391,7 @@ public class MerkerChart3D : MonoBehaviour
                 carrMerker.point.pos.Set(point.x, point.y, point.z);
                 carrMerker.point.posScreen.Set(pointScreen.x, pointScreen.y, pointScreen.z);
                 listMerkers[index] = carrMerker;
-                listMerkers[index].obj.transform.localPosition = pointScreen;
+                listMerkers[index].obj.localPosition = pointScreen;
 
                 if (dataFunc.typeData == Graph3D.TypeData.Function) //(ver1.1)
                 {
@@ -411,11 +410,11 @@ public class MerkerChart3D : MonoBehaviour
         int index = listMerkers.FindIndex(m => m.name == name);
         if (index >= 0)
         {
-            listMerkers[index].obj.SetActive(active);
+            listMerkers[index].obj.gameObject.SetActive(active);
 
             if (color != null)
             {
-                listMerkers[index].obj.transform.Find("Point").GetComponent<Image>().color = (Color)color;
+                listMerkers[index].obj.Find("Point").GetComponent<Image>().color = (Color)color;
             }
         }
         else
@@ -492,34 +491,34 @@ public class MerkerChart3D : MonoBehaviour
                 switch (dataFunc.typeFunc)
                 {
                     case Graph3D.TypeFunc.X_YZ:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().enabled = func;
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().enabled = arg1;
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().enabled = arg2;
+                        listMerkers[index].X.GetComponent<LineRenderer>().enabled = func;
+                        listMerkers[index].Y.GetComponent<LineRenderer>().enabled = arg1;
+                        listMerkers[index].Z.GetComponent<LineRenderer>().enabled = arg2;
                         break;
                     case Graph3D.TypeFunc.X_ZY:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().enabled = func;
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().enabled = arg2;
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().enabled = arg1;
+                        listMerkers[index].X.GetComponent<LineRenderer>().enabled = func;
+                        listMerkers[index].Y.GetComponent<LineRenderer>().enabled = arg2;
+                        listMerkers[index].Z.GetComponent<LineRenderer>().enabled = arg1;
                         break;
                     case Graph3D.TypeFunc.Y_ZX:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().enabled = arg2;
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().enabled = func;
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().enabled = arg1;
+                        listMerkers[index].X.GetComponent<LineRenderer>().enabled = arg2;
+                        listMerkers[index].Y.GetComponent<LineRenderer>().enabled = func;
+                        listMerkers[index].Z.GetComponent<LineRenderer>().enabled = arg1;
                         break;
                     case Graph3D.TypeFunc.Y_XZ:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().enabled = arg1;
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().enabled = func;
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().enabled = arg2;
+                        listMerkers[index].X.GetComponent<LineRenderer>().enabled = arg1;
+                        listMerkers[index].Y.GetComponent<LineRenderer>().enabled = func;
+                        listMerkers[index].Z.GetComponent<LineRenderer>().enabled = arg2;
                         break;
                     case Graph3D.TypeFunc.Z_XY:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().enabled = arg1;
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().enabled = arg2;
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().enabled = func;
+                        listMerkers[index].X.GetComponent<LineRenderer>().enabled = arg1;
+                        listMerkers[index].Y.GetComponent<LineRenderer>().enabled = arg2;
+                        listMerkers[index].Z.GetComponent<LineRenderer>().enabled = func;
                         break;
                     case Graph3D.TypeFunc.Z_YX:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().enabled = arg2;
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().enabled = arg1;
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().enabled = func;
+                        listMerkers[index].X.GetComponent<LineRenderer>().enabled = arg2;
+                        listMerkers[index].Y.GetComponent<LineRenderer>().enabled = arg1;
+                        listMerkers[index].Z.GetComponent<LineRenderer>().enabled = func;
                         break;
                     default:
                         break;
@@ -546,34 +545,34 @@ public class MerkerChart3D : MonoBehaviour
                 switch (dataFunc.typeFunc)
                 {
                     case Graph3D.TypeFunc.X_YZ:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").gameObject.SetActive(func);
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").gameObject.SetActive(arg2);
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").gameObject.SetActive(arg1);
+                        listMerkers[index].X_Label.gameObject.SetActive(func);
+                        listMerkers[index].Y_Label.gameObject.SetActive(arg2);
+                        listMerkers[index].Z_Label.gameObject.SetActive(arg1);
                         break;
                     case Graph3D.TypeFunc.X_ZY:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").gameObject.SetActive(func);
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").gameObject.SetActive(arg1);
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").gameObject.SetActive(arg2);
+                        listMerkers[index].X_Label.gameObject.SetActive(func);
+                        listMerkers[index].Y_Label.gameObject.SetActive(arg1);
+                        listMerkers[index].Z_Label.gameObject.SetActive(arg2);
                         break;
                     case Graph3D.TypeFunc.Y_ZX:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").gameObject.SetActive(arg1);
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").gameObject.SetActive(func);
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").gameObject.SetActive(arg2);
+                        listMerkers[index].X_Label.gameObject.SetActive(arg1);
+                        listMerkers[index].Y_Label.gameObject.SetActive(func);
+                        listMerkers[index].Z_Label.gameObject.SetActive(arg2);
                         break;
                     case Graph3D.TypeFunc.Y_XZ:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").gameObject.SetActive(arg2);
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").gameObject.SetActive(func);
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").gameObject.SetActive(arg1);
+                        listMerkers[index].X_Label.gameObject.SetActive(arg2);
+                        listMerkers[index].Y_Label.gameObject.SetActive(func);
+                        listMerkers[index].Z_Label.gameObject.SetActive(arg1);
                         break;
                     case Graph3D.TypeFunc.Z_XY:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").gameObject.SetActive(arg2);
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").gameObject.SetActive(arg1);
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").gameObject.SetActive(func);
+                        listMerkers[index].X_Label.gameObject.SetActive(arg2);
+                        listMerkers[index].Y_Label.gameObject.SetActive(arg1);
+                        listMerkers[index].Z_Label.gameObject.SetActive(func);
                         break;
                     case Graph3D.TypeFunc.Z_YX:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").gameObject.SetActive(arg1);
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").gameObject.SetActive(arg2);
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").gameObject.SetActive(func);
+                        listMerkers[index].X_Label.gameObject.SetActive(arg1);
+                        listMerkers[index].Y_Label.gameObject.SetActive(arg2);
+                        listMerkers[index].Z_Label.gameObject.SetActive(func);
                         break;
                     default:
                         break;
@@ -599,34 +598,34 @@ public class MerkerChart3D : MonoBehaviour
                 switch (dataFunc.typeFunc)
                 {
                     case Graph3D.TypeFunc.X_YZ:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
                         break;
                     case Graph3D.TypeFunc.X_ZY:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
                         break;
                     case Graph3D.TypeFunc.Y_ZX:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
                         break;
                     case Graph3D.TypeFunc.Y_XZ:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
                         break;
                     case Graph3D.TypeFunc.Z_XY:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
                         break;
                     case Graph3D.TypeFunc.Z_YX:
-                        listMerkers[index].obj.transform.Find("X").GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
-                        listMerkers[index].obj.transform.Find("Y").GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
-                        listMerkers[index].obj.transform.Find("Z").GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
+                        listMerkers[index].X.GetComponent<LineRenderer>().SetColors(arg2Line, arg2Line);
+                        listMerkers[index].Y.GetComponent<LineRenderer>().SetColors(arg1Line, arg1Line);
+                        listMerkers[index].Z.GetComponent<LineRenderer>().SetColors(funcLine, funcLine);
                         break;
                     default:
                         break;
@@ -652,34 +651,34 @@ public class MerkerChart3D : MonoBehaviour
                 switch (dataFunc.typeFunc)
                 {
                     case Graph3D.TypeFunc.X_YZ:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = funcValue;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = arg1Value;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = arg2Value;
+                        listMerkers[index].X_Label.color = funcValue;
+                        listMerkers[index].Y_Label.color = arg1Value;
+                        listMerkers[index].Z_Label.color = arg2Value;
                         break;
                     case Graph3D.TypeFunc.X_ZY:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = funcValue;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = arg2Value;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = arg1Value;
+                        listMerkers[index].X_Label.color = funcValue;
+                        listMerkers[index].Y_Label.color = arg2Value;
+                        listMerkers[index].Z_Label.color = arg1Value;
                         break;
                     case Graph3D.TypeFunc.Y_ZX:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = arg2Value;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = funcValue;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = arg1Value;
+                        listMerkers[index].X_Label.color = arg2Value;
+                        listMerkers[index].Y_Label.color = funcValue;
+                        listMerkers[index].Z_Label.color = arg1Value;
                         break;
                     case Graph3D.TypeFunc.Y_XZ:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = arg1Value;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = funcValue;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = arg2Value;
+                        listMerkers[index].X_Label.color = arg1Value;
+                        listMerkers[index].Y_Label.color = funcValue;
+                        listMerkers[index].Z_Label.color = arg2Value;
                         break;
                     case Graph3D.TypeFunc.Z_XY:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = arg1Value;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = arg2Value;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = funcValue;
+                        listMerkers[index].X_Label.color = arg1Value;
+                        listMerkers[index].Y_Label.color = arg2Value;
+                        listMerkers[index].Z_Label.color = funcValue;
                         break;
                     case Graph3D.TypeFunc.Z_YX:
-                        listMerkers[index].obj.transform.Find("X").Find("Label").GetComponent<Text>().color = arg2Value;
-                        listMerkers[index].obj.transform.Find("Y").Find("Label").GetComponent<Text>().color = arg1Value;
-                        listMerkers[index].obj.transform.Find("Z").Find("Label").GetComponent<Text>().color = funcValue;
+                        listMerkers[index].X_Label.color = arg2Value;
+                        listMerkers[index].Y_Label.color = arg1Value;
+                        listMerkers[index].Z_Label.color = funcValue;
                         break;
                     default:
                         break;
@@ -702,11 +701,13 @@ public class MerkerChart3D : MonoBehaviour
         {
             foreach (Graph3D.tCurve curve in listMerkers[index].curveArg1.listCurves)
             {
-                curve.objLine.transform.GetComponent<LineRenderer>().SetColors(func_arg1, func_arg1);               
+                if (curve.lineRender != null)
+                    curve.lineRender.SetColors(func_arg1, func_arg1);
             }
             foreach (Graph3D.tCurve curve in listMerkers[index].curveArg2.listCurves)
             {
-                curve.objLine.transform.GetComponent<LineRenderer>().SetColors(func_arg2, func_arg2);
+                if (curve.lineRender != null) 
+                    curve.lineRender.SetColors(func_arg2, func_arg2);
             }
         }
         else
@@ -718,11 +719,37 @@ public class MerkerChart3D : MonoBehaviour
 
     public struct Merker
     {
-        public GameObject obj;
+        public Transform obj;
+        public Transform obj_Point;
+        public LineRenderer X;
+        public TextMeshPro X_Label;
+        public LineRenderer Y;
+        public TextMeshPro Y_Label;
+        public LineRenderer Z;
+        public TextMeshPro Z_Label;
+        //public TMPro.tmu
+
         public string name;
         public Point point;
         public Graph3D.Curve curveArg1;
         public Graph3D.Curve curveArg2;
+
+        public Merker(Transform obj, string name)
+        {
+            this.obj = obj;
+            this.obj_Point = obj.Find("Point");
+            this.X = obj.transform.Find("X").GetComponent<LineRenderer>();
+            this.Y = obj.transform.Find("Y").GetComponent<LineRenderer>();
+            this.Z = obj.transform.Find("Z").GetComponent<LineRenderer>();
+            this.X_Label = X.transform.Find("Label").GetComponent<TextMeshPro>();
+            this.Y_Label = Y.transform.Find("Label").GetComponent<TextMeshPro>();
+            this.Z_Label = Z.transform.Find("Label").GetComponent<TextMeshPro>();
+
+            this.name = name;
+            this.point = default(Point);
+            this.curveArg1 = null;
+            this.curveArg2 = null;
+        }
     }   
 
     public struct Point

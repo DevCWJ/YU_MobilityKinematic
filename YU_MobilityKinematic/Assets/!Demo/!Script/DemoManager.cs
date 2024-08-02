@@ -4,8 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using static UnityEngine.Rendering.DebugUI;
-
 public class DemoManager : CWJ.Singleton.SingletonBehaviour<DemoManager>
 {
     [SerializeField] vThirdPersonCamera tpsCamera;

@@ -1507,18 +1507,18 @@ public class Graph3D : MonoBehaviour
         }
         else
         {
-            Debug.Log("Срипт ParseCSV не подключен , либо не указан файл CSV");
+            Debug.Log("ParseCSV 스크립트가 연결되지 않았거나 CSV 파일이 지정되지 않았습니다.");
             return false;
         }       
     }   //</ver1.1>
 
     enum TypeIndex { Elements, Carves };    //(ver1.1) The index of the element or the index of the curve * Индекс элемент или индекс кривой.
     //<ver1.1> Returns the maximum index of the element or the maximum index of the curve from the CSV table according to the parameter settings.
-    //0921 Возвращает максимальный индекс элемента или максимальный индекс кривой из таблицы CSV согласно настройкам параметров.
+    //0921 CSV 테이블에서 매개변수 설정에 따라 최대 요소 인덱스 또는 최대 곡선 인덱스를 반환합니다.
     private static int GetMaxIndexCSV(tParamXYZ param, TypeIndex type)	
 	{
-		//Определяем максимальный индекс элементов в выбранной строке (arg1) или максимальный индекс элементов в выбранной колоноке (arg2) в таблице CSV
-		int maxRow = param.tableCSV.csvData.GetUpperBound(0);   //0 - первая размерность массива
+        //CSV 테이블에서 선택한 행 (arg1) 또는 선택한 열 (arg2)에서 요소의 최대 인덱스를 결정합니다.
+        int maxRow = param.tableCSV.csvData.GetUpperBound(0);   //0 - первая размерность массива
         int maxCol = param.tableCSV.csvData.GetUpperBound(1);   //1 - вторая размерность массива
 
 

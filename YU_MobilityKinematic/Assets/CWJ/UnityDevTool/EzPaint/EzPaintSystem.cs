@@ -316,6 +316,10 @@ namespace CWJ.EzPaint
             {
                 MarkPixelsToColor(pixelPos, penWidth, penColor);
             }
+            else if (prevDragPos == pixelPos)
+            {
+                Debug.LogError("?");
+            }
             else
             {
                 PaintColorBetween(prevDragPos, pixelPos, penWidth, penColor);
@@ -358,7 +362,10 @@ namespace CWJ.EzPaint
             {
                 //x값이 이미지를 벗어났는지 확인
                 if (x >= (int)sprite.rect.width || x < 0)
+                {
+                    Debug.LogError("MarkPixelsToColor?");
                     continue;
+                }
 
                 for (int y = centerY - penThickness; y <= centerY + penThickness; y++)
                 {
@@ -373,7 +380,10 @@ namespace CWJ.EzPaint
             int arrayPos = y * (int)sprite.rect.width + x;
 
             if (arrayPos >= curColors.Length || arrayPos < 0)
+            {
+                    Debug.LogError("MarkPixelToChange?");
                 return;
+            }
 
             // ADD : 되돌리기 기능 추가를 위한 배열 저장 (by 김성수)
             // TODO : 색이 다른경우에 이전에 칠해진색상으로 복구시켜줘야함

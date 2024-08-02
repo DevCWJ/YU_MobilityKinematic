@@ -88,7 +88,6 @@ namespace CWJ
         public virtual void UpdateInputSystem()
         {
         }
-
         protected void Update()
         {
             if (touchListeners.Length == 0)

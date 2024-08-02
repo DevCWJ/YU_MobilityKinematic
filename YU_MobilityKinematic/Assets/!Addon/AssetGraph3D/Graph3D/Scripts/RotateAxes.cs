@@ -10,7 +10,9 @@ public class RotateAxes : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     public float rotateSensivity = 0.1f;
    
     public float rotateHorizont = 0f;   
-    public float rotateVertical = 0f;    
+    public float rotateVertical = 0f;
+
+    [SerializeField] Transform startPosObj, dragPosObj;
 
     private Vector3 localRotateCarr, globalRotateCarr;
     private Vector3 startDeltaPos;  //The starting position of the control is offset from the start of pressing * Стартовая позиция контрола смещенная от начала нажатия
@@ -19,10 +21,11 @@ public class RotateAxes : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     private float limTop;
     private float limBottom;
     private float limLeft;
-    private float limRight;   
-
+    private float limRight;
+    Canvas canvas;
     private void Start()
     {    
+        canvas = GetComponentInParent<Canvas>();
         limTop = transform.GetComponent<RectTransform>().rect.yMax;
         limBottom = transform.GetComponent<RectTransform>().rect.yMin;
         limLeft = transform.GetComponent<RectTransform>().rect.xMin;
@@ -39,8 +42,11 @@ public class RotateAxes : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             //Debug.Log("OnBeginDrag(PointerEventData eventData) <=");
             Camera eventCam = eventData.pressEventCamera;
             Vector3 worldPoint = eventCam.ScreenToWorldPoint(eventData.position);
+
             Vector3 localPoint = transform.InverseTransformPoint(worldPoint);
-            startDeltaPos = localPoint;
+            startDeltaPos = CWJ.CanvasUtil.CanvasToWorldPos_WorldSpaceRenderMode(worldPoint, eventCam, canvas);
+            if (startPosObj != null)
+            startPosObj.position = startDeltaPos;
             //Debug.Log("OnBeginDrag(PointerEventData eventData) =>");      
         }
     }    
@@ -54,6 +60,9 @@ public class RotateAxes : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             Vector2 worldPoint = eventCam.ScreenToWorldPoint(eventData.position);
             Vector2 localPoint = transform.InverseTransformPoint(worldPoint);
             Vector2 dragPos = localPoint;
+            dragVector = dragPos;
+            if (dragPosObj != null)
+                dragPosObj.position = dragVector;
 
             if (dragPos.y > limTop) return;
             if (dragPos.y < limBottom) return;
