@@ -23,7 +23,7 @@ namespace CWJ.EditorOnly
         {
             return property.serializedObject.targetObject.GetType().Name + "." + property.propertyPath + ".IsOpen";
         }
-
+#pragma warning disable 0612 
         public override void Setup(SerializedProperty property, FieldInfo fieldInfo)
         {
             Setup(property, TypeHelper.GetAttribute<SerializableDictionaryAttribute>(fieldInfo));
@@ -65,7 +65,7 @@ namespace CWJ.EditorOnly
                 }
             }
         }
-
+#pragma warning restore
         public override float GetHeight(SerializedProperty property, GUIContent label)
         {
             return _dictionary != null ? _dictionaryControl.GetHeight() : EditorGUI.GetPropertyHeight(property, label);

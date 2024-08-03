@@ -752,7 +752,9 @@ public class Graph3D : MonoBehaviour
                             listCurves[i].lineRender.SetPositions(pointsReal);
                             if (color != null)
                             {
+#pragma warning disable 0618
                                 listCurves[i].lineRender.SetColors((Color)color, (Color)color);
+#pragma warning restore
                             }
                         }
                         else if (data.typeForm == TypeForm.Points || data.typeForm == TypeForm.Points_Pins)
@@ -775,7 +777,9 @@ public class Graph3D : MonoBehaviour
                             listCurves[i].lineRender.SetPositions(listCurves[i].nodes.pointScreen);
                             if (color != null)
                             {
+#pragma warning disable 0618
                                 listCurves[i].lineRender.SetColors((Color)color, (Color)color);
+#pragma warning restore
                             }
                         }
                         else if (data.typeForm == TypeForm.Points || data.typeForm == TypeForm.Points_Pins) //(ver1.1)

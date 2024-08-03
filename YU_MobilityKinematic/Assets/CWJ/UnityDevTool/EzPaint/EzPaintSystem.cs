@@ -303,22 +303,19 @@ namespace CWJ.EzPaint
             }
             GetSpriteTexture().SetPixels(cleanColorArray);
             GetSpriteTexture().Apply();
+            curColors = GetSpriteTexture().GetPixels32();
         }
 
         protected void PaintOnSprite(Vector2 inputPosition)
         {
             Vector2 pixelPos = WorldToPixelCoordinates(inputPosition);
-            curColors = GetSpriteTexture().GetPixels32();
+            //curColors = GetSpriteTexture().GetPixels32();
 
             //
 
             if (prevDragPos == Vector2.zero)
             {
                 MarkPixelsToColor(pixelPos, penWidth, penColor);
-            }
-            else if (prevDragPos == pixelPos)
-            {
-                Debug.LogError("?");
             }
             else
             {
@@ -341,7 +338,7 @@ namespace CWJ.EzPaint
 
             Vector2 curPosition = startPoint;
 
-            float lerpSteps = 1 / distance;
+            float lerpSteps = 1 / (distance * 2);
 
             //마지막 업데이트 후 elapsed 사이에 startPoint와 endPoint간에 선형보간
             for (float lerp = 0; lerp <= 1; lerp += lerpSteps)
@@ -363,7 +360,6 @@ namespace CWJ.EzPaint
                 //x값이 이미지를 벗어났는지 확인
                 if (x >= (int)sprite.rect.width || x < 0)
                 {
-                    Debug.LogError("MarkPixelsToColor?");
                     continue;
                 }
 
@@ -385,7 +381,7 @@ namespace CWJ.EzPaint
                 return;
             }
 
-            // ADD : 되돌리기 기능 추가를 위한 배열 저장 (by 김성수)
+            // ADD : 되돌리기 기능 추가를 위한 배열 저장
             // TODO : 색이 다른경우에 이전에 칠해진색상으로 복구시켜줘야함
             if (curColors[arrayPos] == resetColor)
                 previousDraw.Enqueue(arrayPos);
@@ -483,6 +479,15 @@ namespace CWJ.EzPaint
             path.IsFolderExists(true);
 
             File.WriteAllBytes(path, pngBytes);
+        }
+
+        protected virtual void OnEnable()
+        {
+            OutlineSetActive(spriteOutlineEnabled);
+        }
+        protected virtual void OnDisable()
+        {
+            OutlineSetActive(false);
         }
     }
 }

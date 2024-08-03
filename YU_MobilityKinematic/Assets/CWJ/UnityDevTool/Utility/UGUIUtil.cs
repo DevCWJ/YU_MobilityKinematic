@@ -46,54 +46,67 @@ namespace CWJ
         /// <param name="button"></param>
         /// <param name="unityAction"></param>
         /// <param name="availableTime"></param>
-        public static void AddLongPressEvent(this Button button, UnityEngine.Events.UnityAction unityAction, float availableTime = 0.5f)
+        public static void AddLongPressStartEvent<T>(this T button, UnityEngine.Events.UnityAction unityAction, float availableTime = 0.5f)
+            where T : Selectable
         {
             var longPressEventSystem = button.targetGraphic.gameObject.GetOrAddComponent<CWJ.UI.LongPressEventSystem>();
-            longPressEventSystem.Constructor(button, false, unityAction, availableTime);
+            longPressEventSystem.ConstructorDown(button, unityAction, availableTime);
         }
 
-        public static void RemoveLongPressEvent(this Button button, UnityEngine.Events.UnityAction unityAction)
+        public static void RemoveLongPressStartEvent<T>(this T button, UnityEngine.Events.UnityAction unityAction)
+            where T : Selectable
         {
             var longPressEventSystem = button.targetGraphic.GetComponent<CWJ.UI.LongPressEventSystem>();
             if (longPressEventSystem == null) return;
-            longPressEventSystem.longPressEvent.RemoveListener_New(unityAction);
+            longPressEventSystem.longPressStartEvent.RemoveListener_New(unityAction);
         }
 
-        public static void AddLongTogglePressEvent(this Toggle toggle, UnityEngine.Events.UnityAction unityAction, float availableTime = 0.5f)
-        {
-            var longPressEventSystem = toggle.targetGraphic.gameObject.GetOrAddComponent<CWJ.UI.LongPressEventSystem>();
-            longPressEventSystem.Constructor(toggle, false, unityAction, availableTime);
-        }
-
-        public static void RemoveLongTogglePressEvent(this Toggle toggle, UnityEngine.Events.UnityAction unityAction)
-        {
-            var longPressEventSystem = toggle.targetGraphic.GetComponent<CWJ.UI.LongPressEventSystem>();
-            if (longPressEventSystem == null) return;
-            longPressEventSystem.longPressEvent.RemoveListener_New(unityAction);
-        }
 
         /// <summary>
-        /// loopInterval : longPressLoopEvent 반복실행 간격
+        /// 
         /// </summary>
         /// <param name="button"></param>
         /// <param name="unityAction"></param>
         /// <param name="availableTime"></param>
-        public static void AddLongPressLoopEvent(this Button button, UnityEngine.Events.UnityAction unityAction, float availableTime = 0.5f, float loopInterval = 0, bool isOnClickEventSame = false)
+        /// <param name="loopInterval">0: Time.deltaTime</param>
+        /// <param name="isOnClickEventSame"></param>
+        public static void AddLongPressLoopEvent<T>(this T button, UnityEngine.Events.UnityAction unityAction, float availableTime = 0.5f, float loopInterval = 0, bool isOnClickEventSame = false)
+            where T : Selectable
         {
             var longPressEventSystem = button.targetGraphic.gameObject.GetOrAddComponent<CWJ.UI.LongPressEventSystem>();
-            longPressEventSystem.Constructor(button, unityAction, availableTime: availableTime, loopInterval: loopInterval);
+            longPressEventSystem.ConstructorLoop(button, unityAction, availableTime: availableTime, loopInterval: loopInterval);
 
             if (isOnClickEventSame)
             {
-                button.onClick.AddListener_New(unityAction);
+                if (button is Button)
+                    (button as Button).onClick.AddListener_New(unityAction);
+                else if (button is Toggle)
+                    (button as Toggle).onValueChanged.AddListener_New((_) => unityAction.Invoke());
+
             }
         }
 
-        public static void RemoveLongPressLoopEvent(this Button button, UnityEngine.Events.UnityAction unityAction)
+        public static void RemoveLongPressLoopEvent<T>(this T button, UnityEngine.Events.UnityAction unityAction)
+                    where T : Selectable
         {
             var longPressEventSystem = button.targetGraphic.GetComponent<CWJ.UI.LongPressEventSystem>();
             if (longPressEventSystem == null) return;
             longPressEventSystem.longPressLoopEvent.RemoveListener_New(unityAction);
+        }
+
+        public static void AddShortPressUpEvent<T>(this T button, UnityEngine.Events.UnityAction unityAction, float availableTime = 0.5f, bool isOnClickEventSame = false)
+                    where T : Selectable
+        {
+            var longPressEventSystem = button.targetGraphic.gameObject.GetOrAddComponent<CWJ.UI.LongPressEventSystem>();
+            longPressEventSystem.ConstructorUp(button, unityAction, availableTime, false);
+
+            if (isOnClickEventSame)
+            {
+                if (button is Button)
+                    (button as Button).onClick.AddListener_New(unityAction);
+                else if (button is Toggle)
+                    (button as Toggle).onValueChanged.AddListener_New((_) => unityAction.Invoke());
+            }
         }
 
         /// <summary>
@@ -102,22 +115,30 @@ namespace CWJ
         /// <param name="button"></param>
         /// <param name="unityAction"></param>
         /// <param name="availableTime"></param>
-        public static void AddLongPressUpEvent(this Button button, UnityEngine.Events.UnityAction unityAction, float availableTime = 0, bool isOnClickEventSame = false)
+        public static void AddLongPressUpEvent<T>(this T button, UnityEngine.Events.UnityAction unityAction, float availableTime = 0.5f, bool isOnClickEventSame = false)
+                    where T : Selectable
         {
             var longPressEventSystem = button.targetGraphic.gameObject.GetOrAddComponent<CWJ.UI.LongPressEventSystem>();
-            longPressEventSystem.Constructor(button, true, unityAction, availableTime);
+            longPressEventSystem.ConstructorUp(button, unityAction, availableTime, true);
 
             if (isOnClickEventSame)
             {
-                button.onClick.AddListener_New(unityAction);
+                if (button is Button)
+                    (button as Button).onClick.AddListener_New(unityAction);
+                else if (button is Toggle)
+                    (button as Toggle).onValueChanged.AddListener_New((_) => unityAction.Invoke());
             }
         }
 
-        public static void RemoveLongPressUpEvent(this Button button, UnityEngine.Events.UnityAction unityAction)
+        public static void RemoveLongPressUpEvent<T>(this T button, UnityEngine.Events.UnityAction unityAction, bool isLongPressedAfter)
+                    where T : Selectable
         {
             var longPressEventSystem = button.targetGraphic.GetComponent<CWJ.UI.LongPressEventSystem>();
             if (longPressEventSystem == null) return;
-            longPressEventSystem.longPressUpEvent.RemoveListener_New(unityAction);
+            if (isLongPressedAfter)
+                longPressEventSystem.longPressedUpEvent.RemoveListener_New(unityAction);
+            else
+                longPressEventSystem.shortPressedUpEvent.RemoveListener_New(unityAction);
         }
 
         /// <summary>

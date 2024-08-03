@@ -35,6 +35,16 @@ public class RotateAxes : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         rotateVertical = 0f;
     }
 
+    private void OnEnable()
+    {
+        rotateRunEnable = true;
+    }
+
+    private void OnDisable()
+    {
+        rotateRunEnable = false;
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (rotateRunEnable)

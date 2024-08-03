@@ -38,12 +38,16 @@ namespace CWJ
     {
         public static KeyListener GetKeyListener(KeyCode keyCode, EKeyState eventState = EKeyState.None, UnityAction callback = null)
         {
-            var targetTl = KeyEventManager_PC.Instance.touchListeners.FirstOrDefault(tl => tl.detectTargetKey == keyCode);
+            int touchListenersLength = KeyEventManager_PC.Instance.touchListeners.Length;
+
+            var targetTl = touchListenersLength == 0 ? null 
+                : KeyEventManager_PC.Instance.touchListeners.FirstOrDefault(tl => tl.detectTargetKey == keyCode);
             if (targetTl != null && targetTl.enabled == false) 
                 targetTl = null;
             if (targetTl == null)
             {
-                var newTlObj = new GameObject($"{keyCode.ToString()}_Listener");
+                var newTlObj = touchListenersLength == 0 ? new GameObject("Key_TouchListener") 
+                    : KeyEventManager_PC.Instance.touchListeners[0].gameObject;
                 targetTl = newTlObj.AddComponent<KeyListener>();
                 targetTl.detectTargetKey = keyCode;
             }

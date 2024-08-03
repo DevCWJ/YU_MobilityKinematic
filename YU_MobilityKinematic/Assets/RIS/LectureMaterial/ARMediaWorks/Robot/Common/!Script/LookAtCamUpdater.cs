@@ -10,16 +10,16 @@ namespace CWJ.YU.Mobility
     {
         [SerializeField] Transform mainCamTrf;
 
-        [SerializeField] UnityEvent<Vector3> camPosUpdateEvent = null;
+        [SerializeField] UnityEvent<Vector3, bool> camPosUpdateEvent = null;
 
-        public static void AddUpdateListener(UnityAction<Vector3> action)
+        public static void AddUpdateListener(UnityAction<Vector3, bool> action)
         {
             if (Instance.camPosUpdateEvent == null)
-                Instance.camPosUpdateEvent = new UnityEvent<Vector3>();
+                Instance.camPosUpdateEvent = new UnityEvent<Vector3, bool>();
             Instance.camPosUpdateEvent.AddListener_New(action);
         }
 
-        public static void RemoveUpdateListener(UnityAction<Vector3> action)
+        public static void RemoveUpdateListener(UnityAction<Vector3, bool> action)
         {
             if (Instance.camPosUpdateEvent != null)
                 Instance.camPosUpdateEvent.RemoveListener_New(action);
@@ -43,12 +43,7 @@ namespace CWJ.YU.Mobility
             }
 
             Vector3 curCamPos = mainCamTrf.position;
-            if (curCamPos.Equals(LastCamPos))
-            {
-                return;
-            }
-
-            camPosUpdateEvent.Invoke(curCamPos);
+            camPosUpdateEvent.Invoke(curCamPos, !curCamPos.Equals(LastCamPos));
             LastCamPos = curCamPos;
         }
     }

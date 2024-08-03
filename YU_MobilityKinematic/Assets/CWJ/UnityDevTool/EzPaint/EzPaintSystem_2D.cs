@@ -77,23 +77,24 @@ namespace CWJ.EzPaint
             spriteCollider.isTrigger = true;
         }
 
-        private void OnEnable()
+        protected override void OnEnable()
         {
+            //SetCamOffset(10);
             spriteCollider.enabled = spriteRenderer.enabled = true;
-            OutlineSetActive(spriteOutlineEnabled);
+            base.OnEnable();
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
             spriteCollider.enabled = spriteRenderer.enabled = false;
-            OutlineSetActive(false);
+            base.OnDisable();
         }
+
 
         public override sealed void TouchHandler_HoldDown()
         {
             Vector3 mousePos = Input.mousePosition;
-            
-            if (rootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+            if (rootCanvas.renderMode == RenderMode.ScreenSpaceCamera) 
             {
                 mousePos = mousePos.CanvasToWorldPos_ScreenSpaceRenderMode(targetCamera, rootCanvas);
             }

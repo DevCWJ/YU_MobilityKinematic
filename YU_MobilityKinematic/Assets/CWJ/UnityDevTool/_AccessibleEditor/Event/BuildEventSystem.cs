@@ -38,7 +38,7 @@ namespace CWJ.AccessibleEditor
 
         public static bool IsBuilding { get; private set; } = false;
 
-         [InitializeOnLoadMethod]
+        [InitializeOnLoadMethod]
         static void InitializeOnLoad()
         {
             BuildPlayerWindow.RegisterBuildPlayerHandler(ProceduralBuildProcess); //빌드콜백 이벤트 추가
@@ -223,7 +223,7 @@ namespace CWJ.AccessibleEditor
                     "\n\n\n" + DebugSetting.DebugSetting_Window.GetSettingText() +
                     "\n\n" + CustomDefine.CustomDefine_Window.GetSettingText();
 
-                DebugLogUtil.PrintLog($"[{nameof(CWJ)}_{nameof(Unity)}DevTool] "+buildCompletedMsg);
+                DebugLogUtil.PrintLog($"[{nameof(CWJ)}_{nameof(Unity)}DevTool] " + buildCompletedMsg);
 
                 if (DisplayDialogUtil.DisplayDialog<BuildPipeline>(buildCompletedMsg, ok: "Open", cancel: "Ok", isPrintLog: false))
                 {
