@@ -9,7 +9,6 @@ public class GraphData : MonoBehaviour
     private void Awake()
     {
         curves = new Graph3D.Curves(Graph3D);
-
         curves.data.typeFunc = Graph3D.TypeFunc.Y_XZ;
         curves.data.typeGraph = Graph3D.TypeGraph.ZCurves;
         //curves.data.typeGraph = Graph3D.TypeGraph.XCurves; 
@@ -39,22 +38,22 @@ public class GraphData : MonoBehaviour
         curves.DataSet();
         curves.Show(Color.green);
 
-        curves.Merker.Set("1", 1.2f, -1.8f, 10);
-        curves.Merker.SetAxeLinesActive("1", true, false, false);
-        curves.Merker.SetValuesActive("1", true, false, false);
-        curves.Merker.Show("1", true);
+        curves.Merker.Set("ㄱ", 1.2f, -1.8f, 10);
+        curves.Merker.SetAxeLinesActive("ㄱ", true, false, false);
+        curves.Merker.SetValuesActive("ㄱ", true, false, false);
+        curves.Merker.Show("ㄱ", true);
 
-        curves.Merker.Set("2", 2.2f, 2f, 10);
-        curves.Merker.SetCurvesActive("2",false, false);
-        curves.Merker.SetAxeLinesActive("2", true, false, false);
-        curves.Merker.SetValuesActive("2", true, false, false);
-        curves.Merker.Show("2", true);
+        curves.Merker.Set("ㄴ", 2.2f, 2f, 10);
+        curves.Merker.SetCurvesActive("ㄴ",false, false);
+        curves.Merker.SetAxeLinesActive("ㄴ", true, false, false);
+        curves.Merker.SetValuesActive("ㄴ", true, false, false);
+        curves.Merker.Show("ㄴ", true);
 
-        curves.Merker.Set("3", 4.55f, 0.7f, 10);
-        curves.Merker.SetCurvesActive("3", false, false);
-        curves.Merker.SetAxeLinesActive("3", true, false, false);
-        curves.Merker.SetValuesActive("3", true, false, false);
-        curves.Merker.Show("3", true);
+        curves.Merker.Set("ㄷ", 4.55f, 0.7f, 10);
+        curves.Merker.SetCurvesActive("ㄷ", false, false);
+        curves.Merker.SetAxeLinesActive("ㄷ", true, false, false);
+        curves.Merker.SetValuesActive("ㄷ", true, false, false);
+        curves.Merker.Show("ㄷ", true);
     }  
     
     private float funcXYZ(float x, float z)

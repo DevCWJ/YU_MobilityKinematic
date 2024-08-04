@@ -1,38 +1,26 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-[ExecuteInEditMode]
-public class RotateAxes : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+public class RotateAxes : MonoBehaviour, IDragHandler/*, IBeginDragHandler, IEndDragHandler*/
 {   
     public Transform AxesPivot;
     public bool rotateRunEnable = true;    //Rotate on Run mode enable/disable * Поворот врежиме Run разрешить/запретить
     [Range(0.1f, 3f)]
     public float rotateSensivity = 0.1f;
-   
-    public float rotateHorizont = 0f;   
-    public float rotateVertical = 0f;
-
-    [SerializeField] Transform startPosObj, dragPosObj;
 
     private Vector3 localRotateCarr, globalRotateCarr;
     private Vector3 startDeltaPos;  //The starting position of the control is offset from the start of pressing * Стартовая позиция контрола смещенная от начала нажатия
     private Vector3 dragVector;     //Motion vector * Вектор движения
 
-    private float limTop;
-    private float limBottom;
-    private float limLeft;
-    private float limRight;
+    Transform cameraTrf;
     Canvas canvas;
+    bool is3D;
     private void Start()
-    {    
+    {
+        if (Camera.main != null)
+            cameraTrf = Camera.main.transform;
         canvas = GetComponentInParent<Canvas>();
-        limTop = transform.GetComponent<RectTransform>().rect.yMax;
-        limBottom = transform.GetComponent<RectTransform>().rect.yMin;
-        limLeft = transform.GetComponent<RectTransform>().rect.xMin;
-        limRight = transform.GetComponent<RectTransform>().rect.xMax;       
-
-        rotateHorizont = 0f;
-        rotateVertical = 0f;
+        is3D = GetComponent<Collider>() != null;
     }
 
     private void OnEnable()
@@ -45,90 +33,57 @@ public class RotateAxes : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         rotateRunEnable = false;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    Vector3 posDelta, prevMousePos = Vector3.zero;
+    void OnMouseDrag()
     {
-        if (rotateRunEnable)
+        if (!is3D || !rotateRunEnable)
         {
-            //Debug.Log("OnBeginDrag(PointerEventData eventData) <=");
-            Camera eventCam = eventData.pressEventCamera;
-            Vector3 worldPoint = eventCam.ScreenToWorldPoint(eventData.position);
-
-            Vector3 localPoint = transform.InverseTransformPoint(worldPoint);
-            startDeltaPos = CWJ.CanvasUtil.CanvasToWorldPos_WorldSpaceRenderMode(worldPoint, eventCam, canvas);
-            if (startPosObj != null)
-            startPosObj.position = startDeltaPos;
-            //Debug.Log("OnBeginDrag(PointerEventData eventData) =>");      
+            return;
         }
-    }    
+        Vector3 mousePos = Input.mousePosition;
+        posDelta = mousePos - prevMousePos;
+        if(Vector3.Dot(AxesPivot.up, Vector3.up) >= 0)
+        {
+            AxesPivot.Rotate(transform.up, -Vector3.Dot(posDelta, cameraTrf.right), Space.World);
+        }
+        AxesPivot.Rotate(cameraTrf.right, Vector3.Dot(posDelta, cameraTrf.up), Space.World);
 
+        prevMousePos = mousePos;
+    }
     public void OnDrag(PointerEventData eventData)
     {
-        if (rotateRunEnable)
+        if (canvas == null || is3D || !rotateRunEnable)
         {
-            //Debug.Log("OnDrag(PointerEventData eventData) <=");          
-            Camera eventCam = eventData.pressEventCamera;
-            Vector2 worldPoint = eventCam.ScreenToWorldPoint(eventData.position);
-            Vector2 localPoint = transform.InverseTransformPoint(worldPoint);
-            Vector2 dragPos = localPoint;
-            dragVector = dragPos;
-            if (dragPosObj != null)
-                dragPosObj.position = dragVector;
-
-            if (dragPos.y > limTop) return;
-            if (dragPos.y < limBottom) return;
-            if (dragPos.x > limRight) return;
-            if (dragPos.x < limLeft) return;
-
-            //Rotate Horizontal In !Local Coordinates * Поворачиваем по горизонтали в !локальных координатах
-            if (Mathf.Abs(eventData.delta.x) > Mathf.Abs(eventData.delta.y))
-            {
-                float rotateHor = -eventData.delta.x * rotateSensivity;
-                AxesPivot.Rotate(0, rotateHor, 0, Space.Self);
-            }
-            //Rotate vertically in !Global coordinates * Поворачиваем по вертикали в !глобальных координатах 
-            else
-            {
-                float rotateVert = eventData.delta.y * rotateSensivity;
-                AxesPivot.Rotate(rotateVert, 0, 0, Space.World);
-            }
+            return;
         }
-    }
-    
-    //Rotate the axes in the editor inspector * Поворот осей в инспекторе редактора
-    private void OnDragOnInspector()
-    {
-        float deltaHor =  - rotateHorizont;
-        float deltaVert = - rotateVertical;
-     
+        //Debug.Log("OnDrag(PointerEventData eventData) <=");          
+        Camera eventCam = eventData.pressEventCamera;
+        Vector2 worldPoint = eventCam.ScreenToWorldPoint(eventData.position);
+        Vector2 localPoint = transform.InverseTransformPoint(worldPoint);
+        Vector2 dragPos = localPoint;
+        dragVector = dragPos;
+
         //Rotate Horizontal In !Local Coordinates * Поворачиваем по горизонтали в !локальных координатах
-        if (Mathf.Abs(deltaHor) > Mathf.Abs(deltaVert))
-        {            
-            float rotateHor =  - deltaHor * rotateSensivity;                  
-            AxesPivot.Rotate(0, rotateHor, 0, Space.Self);            
+        if (Mathf.Abs(eventData.delta.x) > Mathf.Abs(eventData.delta.y))
+        {
+            float rotateHor = -eventData.delta.x * rotateSensivity;
+            AxesPivot.Rotate(0, rotateHor, 0, Space.Self);
         }
         //Rotate vertically in !Global coordinates * Поворачиваем по вертикали в !глобальных координатах 
         else
-        {              
-            float rotateVert = deltaVert * rotateSensivity;            
-            AxesPivot.Rotate(rotateVert, 0, 0, Space.World);           
-        }
-        rotateHorizont = 0f;
-        rotateVertical = 0f;
-    }
-
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (rotateRunEnable)
         {
-
+            float rotateVert = eventData.delta.y * rotateSensivity;
+            AxesPivot.Rotate(rotateVert, 0, 0, Space.World);
         }
     }
 
-     void OnValidate ( ) 
-    {
-        //Debug.Log("OnValidate ( )");        
-        OnDragOnInspector();
-    }
+
+    //public void OnEndDrag(PointerEventData eventData)
+    //{
+    //    if (rotateRunEnable)
+    //    {
+
+    //    }
+    //}
 
 }

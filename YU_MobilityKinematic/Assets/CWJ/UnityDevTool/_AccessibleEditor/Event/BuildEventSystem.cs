@@ -82,8 +82,7 @@ namespace CWJ.AccessibleEditor
 
             if (RuntimeDebuggingToolExtension.CheckRdtModifiedByAutoManage() || defineDevBuild != EditorUserBuildSettings.development)
             {
-                Debug.LogError("CWJ TODO : test!! 컴파일후 이벤트로 빌드 진행");
-
+                CWJ.DebugLogUtil.PrintLogWarning("CWJ TODO : test!! 컴파일후 이벤트로 빌드 진행");
                 //CWJ_EditorEventHelper.ReloadedScriptOnlyDuringBuildEvent += () => PreprocessBuildCallback(option);
                 AccessibleEditorUtil.ForceRecompile();
                 BuildCancel(false);

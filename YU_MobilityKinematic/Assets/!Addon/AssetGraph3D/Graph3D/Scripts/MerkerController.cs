@@ -185,19 +185,19 @@ public class MerkerChart3D : MonoBehaviour
 
                         listMerkers[index].X.transform.localPosition = new Vector3(0, 0, 0);
                         listMerkers[index].X.SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0));
-                        listMerkers[index].X_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.color = axesParent.AxeX_label.color;
                         listMerkers[index].X_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " +  text);
                         listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0);
 
                         listMerkers[index].Z.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, -arg2_screen);
                         listMerkers[index].Z.SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].Z_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.color = axesParent.AxeY_label.color;
                         listMerkers[index].Z_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
                         listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg1);
 
                         listMerkers[index].Y.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, -arg1_screen, 0);
                         listMerkers[index].Y.SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].Y_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.color = axesParent.AxeZ_label.color;
                         listMerkers[index].Y_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
                         listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg2, 0);
 
@@ -223,19 +223,19 @@ public class MerkerChart3D : MonoBehaviour
 
                         listMerkers[index].X.transform.localPosition = new Vector3(0, 0, 0);
                         listMerkers[index].X.SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0));
-                        listMerkers[index].X_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.color = axesParent.AxeX_label.color;
                         listMerkers[index].X_Label.SetText(((Mathf.Round(func * factor)) / factor).ToString() + " " + text);
                         listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, 0);
 
                         listMerkers[index].Z.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, 0, -arg1_screen);
                         listMerkers[index].Z.SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].Z_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.color = axesParent.AxeY_label.color;
                         listMerkers[index].Z_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
                         listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg2);
 
                         listMerkers[index].Y.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - func_screen, -arg2_screen, 0);
                         listMerkers[index].Y.SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].Y_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.color = axesParent.AxeZ_label.color;
                         listMerkers[index].Y_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
                         listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg1, 0);
                         break;
@@ -259,19 +259,19 @@ public class MerkerChart3D : MonoBehaviour
 
                         listMerkers[index].Y.transform.localPosition = new Vector3(0, 0, 0);
                         listMerkers[index].Y.SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0));
-                        listMerkers[index].Y_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.color = axesParent.AxeY_label.color;
                         listMerkers[index].Y_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
                         listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
 
                         listMerkers[index].X.transform.localPosition = new Vector3(-arg2_screen, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
                         listMerkers[index].X.SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].X_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.color = axesParent.AxeZ_label.color;
                         listMerkers[index].X_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
                         listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg1, 0, 0);
 
                         listMerkers[index].Z.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, -arg1_screen);
                         listMerkers[index].Z.SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].Z_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.color = axesParent.AxeX_label.color;
                         listMerkers[index].Z_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
                         listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg2);
                         break;
@@ -294,19 +294,19 @@ public class MerkerChart3D : MonoBehaviour
                         }
 
                         listMerkers[index].Y.SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0));
-                        listMerkers[index].Y_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.color = axesParent.AxeY_label.color;
                         listMerkers[index].Y_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
                         listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
 
                         listMerkers[index].X.transform.localPosition = new Vector3(-arg1_screen, dataFunc.Y.scaleAxe.HScreen - func_screen, 0);
                         listMerkers[index].X.SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].X_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.color = axesParent.AxeZ_label.color;
                         listMerkers[index].X_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
                         listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg2, 0, 0);
 
                         listMerkers[index].Z.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - func_screen, -arg2_screen);
                         listMerkers[index].Z.SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen));
-                        listMerkers[index].Z_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.color = axesParent.AxeX_label.color;
                         listMerkers[index].Z_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
                         listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - arg1);
                         break;
@@ -330,19 +330,19 @@ public class MerkerChart3D : MonoBehaviour
 
                         listMerkers[index].Z.transform.localPosition = new Vector3(0, 0, 0);
                         listMerkers[index].Z.SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen));
-                        listMerkers[index].Z_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.color = axesParent.AxeZ_label.color;
                         listMerkers[index].Z_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
                         listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
 
                         listMerkers[index].X.transform.localPosition = new Vector3(-arg1_screen, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
                         listMerkers[index].X.SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].X_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.color = axesParent.AxeY_label.color;
                         listMerkers[index].X_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
                         listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg2, 0, 0);
 
                         listMerkers[index].Y.transform.localPosition = new Vector3(0, -arg2_screen, dataFunc.Z.scaleAxe.HScreen - func_screen);
                         listMerkers[index].Y.SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].Y_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.color = axesParent.AxeX_label.color;
                         listMerkers[index].Y_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
                         listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg1, 0);
                         break;
@@ -366,19 +366,19 @@ public class MerkerChart3D : MonoBehaviour
 
                         listMerkers[index].Z.transform.localPosition = new Vector3(0, 0, 0);
                         listMerkers[index].Z.SetPosition(1, new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen));
-                        listMerkers[index].Z_Label.color = axesParent.AxeZ.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Z_Label.color = axesParent.AxeZ_label.color;
                         listMerkers[index].Z_Label.SetText(((Mathf.Round((func * factor))) / factor).ToString() + " " + text);
                         listMerkers[index].Z_Label.transform.localPosition = new Vector3(0, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
 
                         listMerkers[index].X.transform.localPosition = new Vector3(-arg2_screen, 0, dataFunc.Z.scaleAxe.HScreen - func_screen);
                         listMerkers[index].X.SetPosition(1, new Vector3(dataFunc.X.scaleAxe.HScreen, 0, 0));
-                        listMerkers[index].X_Label.color = axesParent.AxeY.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].X_Label.color = axesParent.AxeY_label.color;
                         listMerkers[index].X_Label.SetText(((Mathf.Round((arg1 * factor))) / factor).ToString());
                         listMerkers[index].X_Label.transform.localPosition = new Vector3(dataFunc.X.scaleAxe.HScreen - arg1, 0, 0);
 
                         listMerkers[index].Y.transform.localPosition = new Vector3(0, -arg1_screen, dataFunc.Z.scaleAxe.HScreen - func_screen);
                         listMerkers[index].Y.SetPosition(1, new Vector3(0, dataFunc.Y.scaleAxe.HScreen, 0));
-                        listMerkers[index].Y_Label.color = axesParent.AxeX.Find("Label").GetComponent<Text>().color;
+                        listMerkers[index].Y_Label.color = axesParent.AxeX_label.color;
                         listMerkers[index].Y_Label.SetText(((Mathf.Round((arg2 * factor))) / factor).ToString());
                         listMerkers[index].Y_Label.transform.localPosition = new Vector3(0, dataFunc.Y.scaleAxe.HScreen - arg2, 0);
                         break;

@@ -45,6 +45,14 @@ namespace CWJ.UI
             this.availableTime = availableTime;
         }
 
+        public void RemoveAllListener()
+        {
+            longPressStartEvent.RemoveAllListeners_New();
+            longPressLoopEvent.RemoveAllListeners_New();
+            shortPressedUpEvent.RemoveAllListeners_New();
+            longPressedUpEvent.RemoveAllListeners_New();
+        }
+
         public UnityEngine.UI.Selectable selectable;
 
         public bool Interactable => selectable.interactable;

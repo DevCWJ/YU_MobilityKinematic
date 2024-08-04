@@ -79,7 +79,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: C:>NetBlue>MyFolder>Test
+  m_Text: C:>Users>MyFolder>Test
 --- !u!1 &3205088146932789422
 GameObject:
   m_ObjectHideFlags: 0
@@ -631,8 +631,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 429495e2218bbf94a97236350274a767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileItem: {fileID: 4652250925904655275, guid: c84b404bbccdc664193e3aa2cf080225, type: 3}
-  emptyFolderTextObj: {fileID: 74445600765058795, guid: 59d74576bf0da8142a5db9bccc77fc40, type: 3}
+  fileItem: {fileID: 4652250925904655275, guid: c84b404bbccdc664193e3aa2cf080225,
+    type: 3}
+  emptyFolderTextObj: {fileID: 74445600765058795, guid: 59d74576bf0da8142a5db9bccc77fc40,
+    type: 3}
   fileIconImg: {fileID: 1070808420916098644}
   folderIconImg: {fileID: 6103045751211030187}
   contentTrf: {fileID: 8763988257362642253}

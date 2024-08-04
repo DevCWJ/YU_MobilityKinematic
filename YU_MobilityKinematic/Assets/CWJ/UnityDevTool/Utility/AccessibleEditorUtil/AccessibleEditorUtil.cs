@@ -506,6 +506,7 @@ namespace CWJ.AccessibleEditor
         const string objName = "CWJ_TODO_ReloadedScriptEvent이후 이벤트 실행되어야 함 ";
         public static void ForceRecompile()
         {
+            return;
             var obj = new GameObject(objName);
             obj.hideFlags = HideFlags.HideInInspector;
             void DestroyTempObj()

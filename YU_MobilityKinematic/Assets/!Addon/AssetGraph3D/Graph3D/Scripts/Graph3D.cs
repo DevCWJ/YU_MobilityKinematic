@@ -13,12 +13,17 @@ public class Graph3D : MonoBehaviour
     public GameObject pMerker;  //Prefab merker * Префаб меркера
     public RectTransform ParentCurves;  //Parent for Curves in the project hierarchy * Родитель для кривых в иерархии проекта
     public RectTransform ParentMerkers; //Parent for merkers in the project hierarchy * Родитель для меркеров в иерархии проекта
-    public Transform AxeX;  //X axis object * Объект оси X
-    public Transform AxeY;
-    public Transform AxeZ;
-    public Transform labelScale_Xmin, labelScale_Xmax;  //X-axis scale value objects minimum/maximum physical * Объекты значения шкалы оси X минимум/максимум физические
-    public Transform labelScale_Ymin, labelScale_Ymax;
-    public Transform labelScale_Zmin, labelScale_Zmax;
+    
+    public LineRenderer AxeX;  //X axis object * Объект оси X
+    public TMPro.TextMeshPro AxeX_label;  //X axis object * Объект оси X
+    public LineRenderer AxeY;
+    public TMPro.TextMeshPro AxeY_label;
+    public LineRenderer AxeZ;
+    public TMPro.TextMeshPro AxeZ_label;
+
+    public TMPro.TextMeshPro labelScale_Xmin, labelScale_Xmax;  //X-axis scale value objects minimum/maximum physical * Объекты значения шкалы оси X минимум/максимум физические
+    public TMPro.TextMeshPro labelScale_Ymin, labelScale_Ymax;
+    public TMPro.TextMeshPro labelScale_Zmin, labelScale_Zmax;
 
     //-------------------------------Inside-------------------------------------------------
     public tScaleAxe scaleX;  //X-scale in screen coordinates * Шкала X в координатах экрана
@@ -37,12 +42,12 @@ public class Graph3D : MonoBehaviour
 
     public void InitGraph3D()
     {
-        scaleX.LScreen = AxeX.GetComponent<LineRenderer>().GetPosition(0).x;
-        scaleX.HScreen = AxeX.GetComponent<LineRenderer>().GetPosition(1).x;
-        scaleY.LScreen = AxeY.GetComponent<LineRenderer>().GetPosition(0).y;
-        scaleY.HScreen = AxeY.GetComponent<LineRenderer>().GetPosition(1).y;
-        scaleZ.LScreen = AxeZ.GetComponent<LineRenderer>().GetPosition(0).z;
-        scaleZ.HScreen = AxeZ.GetComponent<LineRenderer>().GetPosition(1).z;
+        scaleX.LScreen = AxeX.GetPosition(0).x;
+        scaleX.HScreen = AxeX.GetPosition(1).x;
+        scaleY.LScreen = AxeY.GetPosition(0).y;
+        scaleY.HScreen = AxeY.GetPosition(1).y;
+        scaleZ.LScreen = AxeZ.GetPosition(0).z;
+        scaleZ.HScreen = AxeZ.GetPosition(1).z;
     }
 
     public struct tParamXYZ //Function Parameter Structure * Структура параметров графика функции
@@ -801,12 +806,12 @@ public class Graph3D : MonoBehaviour
             }
             if (active)
             {
-                parent.labelScale_Xmin.GetComponent<Text>().text = data.X.scale.L.ToString();
-                parent.labelScale_Xmax.GetComponent<Text>().text = data.X.scale.H.ToString();
-                parent.labelScale_Ymin.GetComponent<Text>().text = data.Y.scale.L.ToString();
-                parent.labelScale_Ymax.GetComponent<Text>().text = data.Y.scale.H.ToString();
-                parent.labelScale_Zmin.GetComponent<Text>().text = data.Z.scale.L.ToString();
-                parent.labelScale_Zmax.GetComponent<Text>().text = data.Z.scale.H.ToString();
+                parent.labelScale_Xmin.SetText(data.X.scale.L.ToString());
+                parent.labelScale_Xmax.SetText(data.X.scale.H.ToString());
+                parent.labelScale_Ymin.SetText(data.Y.scale.L.ToString());
+                parent.labelScale_Ymax.SetText(data.Y.scale.H.ToString());
+                parent.labelScale_Zmin.SetText(data.Z.scale.L.ToString());
+                parent.labelScale_Zmax.SetText(data.Z.scale.H.ToString());
             }
         }
 
@@ -867,12 +872,12 @@ public class Graph3D : MonoBehaviour
             data.Y.scaleFunc = CreateScaleFuncAxeY(data);
             data.Z.scaleFunc = CreateScaleFuncAxeZ(data);
 
-            parent.labelScale_Xmin.GetComponent<Text>().text = data.X.scale.L.ToString();
-            parent.labelScale_Xmax.GetComponent<Text>().text = data.X.scale.H.ToString();
-            parent.labelScale_Ymin.GetComponent<Text>().text = data.Y.scale.L.ToString();
-            parent.labelScale_Ymax.GetComponent<Text>().text = data.Y.scale.H.ToString();
-            parent.labelScale_Zmin.GetComponent<Text>().text = data.Z.scale.L.ToString();
-            parent.labelScale_Zmax.GetComponent<Text>().text = data.Z.scale.H.ToString();
+            parent.labelScale_Xmin.SetText(data.X.scale.L.ToString());
+            parent.labelScale_Xmax.SetText(data.X.scale.H.ToString());
+            parent.labelScale_Ymin.SetText(data.Y.scale.L.ToString());
+            parent.labelScale_Ymax.SetText(data.Y.scale.H.ToString());
+            parent.labelScale_Zmin.SetText(data.Z.scale.L.ToString());
+            parent.labelScale_Zmax.SetText(data.Z.scale.H.ToString());
 
             curves = CreateCurves(data); //Creating an array of curves according to the specified parameters * Создание массива кривых по заданным параметрам
 
@@ -1080,12 +1085,12 @@ public class Graph3D : MonoBehaviour
             data.Y.scaleFunc = CreateScaleFuncAxeY(data);
             data.Z.scaleFunc = CreateScaleFuncAxeZ(data);  
 
-            parent.labelScale_Xmin.GetComponent<Text>().text = data.X.scale.L.ToString();            
-            parent.labelScale_Xmax.GetComponent<Text>().text = data.X.scale.H.ToString();
-            parent.labelScale_Ymin.GetComponent<Text>().text = data.Y.scale.L.ToString();
-            parent.labelScale_Ymax.GetComponent<Text>().text = data.Y.scale.H.ToString();
-            parent.labelScale_Zmin.GetComponent<Text>().text = data.Z.scale.L.ToString();
-            parent.labelScale_Zmax.GetComponent<Text>().text = data.Z.scale.H.ToString();
+            parent.labelScale_Xmin.SetText(data.X.scale.L.ToString());            
+            parent.labelScale_Xmax.SetText(data.X.scale.H.ToString());
+            parent.labelScale_Ymin.SetText(data.Y.scale.L.ToString());
+            parent.labelScale_Ymax.SetText(data.Y.scale.H.ToString());
+            parent.labelScale_Zmin.SetText(data.Z.scale.L.ToString());
+            parent.labelScale_Zmax.SetText(data.Z.scale.H.ToString());
 
             surf = CreateSurface(data); //Creating a surface by parameters * Создание поверхности по параметрам           
 
