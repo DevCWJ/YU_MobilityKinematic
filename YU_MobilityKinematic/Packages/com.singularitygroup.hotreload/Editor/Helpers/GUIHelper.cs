@@ -71,7 +71,8 @@ namespace SingularityGroup.HotReload.Editor {
                 
                 // we assume icons are for light mode by default
                 // therefore if its dark mode we should invert them
-                if (HotReloadWindowStyles.IsDarkMode) {
+                if (HotReloadWindowStyles.IsDarkMode && iconTexture.isReadable) 
+                {
                     iconTexture = InvertTextureColor(iconTexture);
                 }
 

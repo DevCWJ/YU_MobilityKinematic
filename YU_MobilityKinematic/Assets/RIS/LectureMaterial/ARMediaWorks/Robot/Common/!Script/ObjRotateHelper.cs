@@ -8,18 +8,15 @@ namespace CWJ.YU.Mobility
 {
     public class ObjRotateHelper : CWJ.Singleton.SingletonBehaviour<ObjRotateHelper>
     {
-        [SerializeField, ErrorIfNull] RotateAxes rotateAxes;
-        Transform targetTrf;
+        [SerializeField, ErrorIfNull] DragToRotate rotateAxes;
 
         [SerializeField] Button leftBtn, rightBtn;
 
         [SerializeField] Button initRotBtn;
         [SerializeField] Toggle holdRotToggle;
         [SerializeField] GameObject lockedObj, unlockedObj;
-        Quaternion initRot;
-        bool isHoldRot;
 
-        protected override void _Start()
+        protected override void _Awake()
         {
             leftBtn.AddLongPressLoopEvent(OnClickLeftLongPressLoop, 0.25f);
             leftBtn.AddShortPressUpEvent(OnClickLeftShortPressUp, 0.25f);
@@ -29,56 +26,63 @@ namespace CWJ.YU.Mobility
 
             initRotBtn.onClick.AddListener_New(OnClickInitBtn);
             holdRotToggle.onValueChanged.AddListener_New(OnToggleChanged);
+            SetTarget(null);
         }
 
         public void SetTarget(Transform trf)
         {
-            if (rotateAxes = trf == null ? null : trf.GetComponentInChildren<RotateAxes>())
-            {
-                targetTrf = rotateAxes.AxesPivot;
-                initRot = targetTrf.rotation;
-            }
-            isHoldRot = false;
+            rotateAxes = trf?.GetComponentInChildren<DragToRotate>(true);
+            bool hasTargetTrf = rotateAxes != null && rotateAxes.AxesPivot != null;
+            if (!hasTargetTrf)
+                rotateAxes = null;
+            
+            initRotBtn.gameObject.SetActive(hasTargetTrf);
+            leftBtn.gameObject.SetActive(hasTargetTrf);
+            rightBtn.gameObject.SetActive(hasTargetTrf);
+            holdRotToggle.gameObject.SetActive(hasTargetTrf);
+            holdRotToggle.SetIsOnWithoutNotify(false);
+            holdRotToggle.isOn = true;
         }
 
-        private void OnToggleChanged(bool isOn)
+        bool isHoldRot;
+        void OnToggleChanged(bool isOn)
         {
             lockedObj.SetActive(isOn);
             unlockedObj.SetActive(!isOn);
+            isHoldRot = isOn;
 
             if (rotateAxes == null) return;
-            isHoldRot = isOn;
             rotateAxes.enabled = !isHoldRot;
         }
 
         void OnClickInitBtn()
         {
-            if (targetTrf == null) return;
-            targetTrf.rotation = initRot;
+            if (rotateAxes == null) return;
+            rotateAxes.ResetRotation();
         }
 
 
         void OnClickLeftLongPressLoop()
         {
-            if (targetTrf == null) return;
-            targetTrf.Rotate(Vector3.up, Time.deltaTime * 20);
+            if (rotateAxes == null) return;
+            rotateAxes.AxesPivot.Rotate(Vector3.up, Time.deltaTime * 20);
         }
         void OnClickLeftShortPressUp()
         {
-            if (targetTrf == null) return;
-            targetTrf.Rotate(Vector3.up, 15);
+            if (rotateAxes== null) return;
+            rotateAxes.AxesPivot.Rotate(Vector3.up, 15);
         }
 
         void OnClickRightLongPressLoop()
         {
-            if (targetTrf == null) return;
-            targetTrf.Rotate(Vector3.down, Time.deltaTime * 20);
+            if (rotateAxes== null) return;
+            rotateAxes.AxesPivot.Rotate(Vector3.down, Time.deltaTime * 20);
         }
 
         void OnClickRightShortPressUp()
         {
-            if (targetTrf == null) return;
-            targetTrf.Rotate(Vector3.down, 15);
+            if (rotateAxes == null) return;
+            rotateAxes.AxesPivot.Rotate(Vector3.down, 15);
         }
     }
 }

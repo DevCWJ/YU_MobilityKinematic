@@ -9,13 +9,14 @@ namespace CWJ.YU.Mobility
         public int topicIndex = 0;
         public string topicTitle;
 
+
         [System.Serializable]
         public class Scenario
         {
+            public string subTitle;
+            public string context;
             public Transform activateTrf;
             public Transform rotateTargetTrf;
-            public string title;
-            public string message;
 
             public void Enable()
             {
@@ -23,58 +24,79 @@ namespace CWJ.YU.Mobility
                     activateTrf.gameObject.SetActive(true);
                 if (rotateTargetTrf != null)
                     ObjRotateHelper.Instance.SetTarget(rotateTargetTrf);
+                if (subTitle == null)
+                    Debug.LogError("subTitle is null");
+                TopicManager.Instance.SetSubTitleTxt(subTitle);
+                if (context == null)
+                    Debug.LogError("context is null");
+                TopicManager.Instance.SetContextTxt(context);
             }
 
-            public void Disable()
+            public void Disable(bool isForAllInit = false)
             {
+                if (!isForAllInit && rotateTargetTrf != null)
+                    ObjRotateHelper.Instance.SetTarget(null);
+                if (activateTrf != null)
+                    activateTrf.gameObject.SetActive(false);
+            }
 
+            public Scenario(Scenario copySource)
+            {
+                this.activateTrf = copySource.activateTrf;
+                this.rotateTargetTrf = copySource.rotateTargetTrf;
+                this.subTitle = copySource.subTitle;
+                this.context = copySource.context;
             }
         }
 
         public Scenario[] scenarios;
+        [SerializeField, Readonly] int curScenarioIndex = -1;
 
-        int curScenarioIndex = -1;
+        [ResizableTextArea]
+        public string[] scenarioContexts;
+
         public void Init()
         {
             curScenarioIndex = -1;
-            foreach (var s in scenarios)
+            for (int i = 0; i < scenarios.Length; i++)
             {
-                if (s.activateTrf != null)
-                    s.activateTrf.gameObject.SetActive(false);
+                scenarios[i].context = scenarioContexts[i];
+                scenarios[i].Disable(true);
             }
             gameObject.SetActive(false);
         }
 
-        public void Previous()
+        void _ChangeScenario(int toScenarioIndex)
         {
             if (!gameObject.activeSelf)
-                gameObject.SetActive(true);
-            if (0 <= curScenarioIndex && curScenarioIndex < scenarios.Length)
             {
-                scenarios[curScenarioIndex].activateTrf.gameObject.SetActive(false);
+                gameObject.SetActive(true);
+                if (topicTitle == null)
+                    Debug.LogError("TopicTitle is null", gameObject);
+                TopicManager.Instance.SetTitleTxt(topicTitle);
             }
-            if (0 < curScenarioIndex)
-                scenarios[--curScenarioIndex].activateTrf.gameObject.SetActive(true);
+            int scenarioLength = scenarios.Length;
+
+            if (0 <= curScenarioIndex && curScenarioIndex < scenarioLength)
+            {
+                scenarios[curScenarioIndex].Disable();
+            }
+
+            if (0 <= toScenarioIndex && toScenarioIndex < scenarioLength)
+            {
+                curScenarioIndex = toScenarioIndex;
+                scenarios[curScenarioIndex].Enable();
+            }
+        }
+
+        public void Previous()
+        {
+            _ChangeScenario(curScenarioIndex - 1);
         }
 
         public void Next()
         {
-            if (!gameObject.activeSelf)
-            {
-
-                gameObject.SetActive(true);
-            }
-            if (0 <= curScenarioIndex && curScenarioIndex < scenarios.Length)
-            {
-                scenarios[curScenarioIndex].activateTrf.gameObject.SetActive(false);
-            }
-            if (curScenarioIndex < scenarios.Length - 1)
-            {
-                var s = scenarios[++curScenarioIndex];
-                s.activateTrf.gameObject.SetActive(true);
-                if (s.rotateTargetTrf != null)
-                    ObjRotateHelper.Instance.SetTarget(s.rotateTargetTrf);
-            }
+            _ChangeScenario(curScenarioIndex + 1);
         }
     }
 }

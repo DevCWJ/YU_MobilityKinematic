@@ -370,7 +370,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -1349024910657317225, guid: 81bb9eea30387e442899949a80011e55, type: 3}
+  - {fileID: 2100000, guid: ab9f2a46eb8e07644a96e40b273338a1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -666,8 +666,8 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -9103484930961366303, guid: 81bb9eea30387e442899949a80011e55, type: 3}
-  - {fileID: -1349024910657317225, guid: 81bb9eea30387e442899949a80011e55, type: 3}
+  - {fileID: 2100000, guid: 92fdc76a29d387d41a478ef075b1530d, type: 2}
+  - {fileID: 2100000, guid: ab9f2a46eb8e07644a96e40b273338a1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1473,7 +1473,7 @@ MonoBehaviour:
   horizontalInput: Horizontal
   verticallInput: Vertical
   jumpInput: 32
-  strafeInput: 9
+  strafeInput: 0
   sprintInput: 304
   rotateCameraXInput: Mouse X
   rotateCameraYInput: Mouse Y
