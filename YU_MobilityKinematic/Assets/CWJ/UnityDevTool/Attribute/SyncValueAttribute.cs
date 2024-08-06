@@ -17,7 +17,7 @@ namespace CWJ
 
         public _Root_SyncValueAttribute(string variableName)
         {
-            order = -4444;
+            order = -444;
             this.variableName = variableName;
             defaultBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
         }

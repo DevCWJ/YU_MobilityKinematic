@@ -32,17 +32,17 @@ public class GraphConstructor : MonoBehaviour
         {
             return;
         }
-            X = axesCenter.Find("X").GetComponent<LineRenderer>();
+        X = axesCenter.Find("X").GetComponent<LineRenderer>();
         Xf = X.transform.Find("Xf").GetComponent<LineRenderer>();
         Xb = X.transform.Find("Xb").GetComponent<LineRenderer>();
         Xd = X.transform.Find("Xd").GetComponent<LineRenderer>();
 
-            Y = axesCenter.Find("Y").GetComponent<LineRenderer>();
+        Y = axesCenter.Find("Y").GetComponent<LineRenderer>();
         Yl = Y.transform.Find("Yl").GetComponent<LineRenderer>();
         Yf = Y.transform.Find("Yf").GetComponent<LineRenderer>();
         Yr = Y.transform.Find("Yr").GetComponent<LineRenderer>();
 
-            Z = axesCenter.Find("Z").GetComponent<LineRenderer>();
+        Z = axesCenter.Find("Z").GetComponent<LineRenderer>();
         Zf = Z.transform.Find("Zf").GetComponent<LineRenderer>();
         Zb = Z.transform.Find("Zb").GetComponent<LineRenderer>();
         Zd = Z.transform.Find("Zd").GetComponent<LineRenderer>();
@@ -173,6 +173,10 @@ public class GraphConstructor : MonoBehaviour
         SetPlaneSize(X, new Vector3(sizeX, sizeY, 0), new Vector2(sizeX, sizeY));
         SetPlaneSize(Y, new Vector3(0, sizeY, -sizeZ), new Vector2(sizeZ, sizeY));
         SetPlaneSize(Z, new Vector3(sizeX, 0, -sizeZ), new Vector2(sizeZ, sizeX));
+
+        var boxCol = axesPivot.GetComponent<BoxCollider>();
+        boxCol.center = Vector3.zero;
+        boxCol.size = new Vector3(sizeX, sizeY, sizeZ);
     }
 
     private void Reset()

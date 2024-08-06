@@ -4,16 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DemoManager : CWJ.Singleton.SingletonBehaviour<DemoManager>
-{
+public class DemoManager : MonoBehaviour 
+{ 
     [SerializeField] vThirdPersonCamera tpsCamera;
 
-    KeyListener rightMouseCallback;
-
     bool escSwitch;
-    protected override void _Start()
+    private void Start()
     {
-        rightMouseCallback = KeyEventManager_PC.GetKeyListener(KeyCode.Mouse1);
+        var rightMouseCallback = KeyEventManager_PC.GetKeyListener(KeyCode.Mouse1);
         rightMouseCallback.onTouchBegan.AddListener(() => SetFreeCameraAndCursor(true));
         rightMouseCallback.onTouchEnded.AddListener(() => SetFreeCameraAndCursor(false));
 

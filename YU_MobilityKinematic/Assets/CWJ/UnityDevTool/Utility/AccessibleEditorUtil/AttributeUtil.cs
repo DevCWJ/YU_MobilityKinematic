@@ -43,14 +43,31 @@ namespace CWJ.AccessibleEditor
             callSituation = EPlayMode.Off;
             if (memberInfo != null)
             {
-                T attribute = memberInfo.GetCustomAttribute<T>();
+                T att = null;
 
-                if (isEnabled = (attribute != null && !attribute.callSituation.Flags_Contains(EPlayMode.Off)))
+                if (memberInfo.IsDefined(typeof(ReadonlyAttribute), true))
+                    att = memberInfo.GetCustomAttribute(typeof(ReadonlyAttribute), true) as T;
+
+                //if (att == null)
+                //{
+                //    try
+                //    {
+                //        var memb = memberInfo.DeclaringType.GetField(memberInfo.Name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                //        object[] atts = memb.GetCustomAttributes(true);
+                //        att = atts[0] as T;
+                //    }
+                //    catch (Exception e)
+                //    {
+                //        Debug.LogError(e.ToString());
+                //    }
+                //} 나중에 고쳐야함...
+
+                if (isEnabled = (att != null && !att.callSituation.Flags_Contains(EPlayMode.Off)))
                 {
-                    callSituation = attribute.callSituation;
-                    predicate = attribute.FindPredicate<T>(memberInfo, targetObj);
+                    callSituation = att.callSituation;
+                    predicate = att.FindPredicate<T>(memberInfo, targetObj);
                     isConstantlyMatched = callSituation.Flags_Contains(EPlayMode.Always) && predicate == null;
-                    forPredicateComparison = attribute.boolForPredicateComparison;
+                    forPredicateComparison = att.boolForPredicateComparison;
                 }
             }
         }
@@ -85,19 +102,19 @@ namespace CWJ.AccessibleEditor
     }
 #endif
 
-    public abstract class _Root_ConditionalAttribute : PropertyAttribute
+    public class _Root_ConditionalAttribute : PropertyAttribute
     {
-        public readonly EPlayMode callSituation;
-        public readonly string predicateName;
-        public readonly bool boolForPredicateComparison;
+        public EPlayMode callSituation;
+        public string predicateName;
+        public bool boolForPredicateComparison;
 
         public _Root_ConditionalAttribute(EPlayMode callSituation, string predicateName, bool boolForPredicateComparison)
         {
-            order = -4444;
+            order = -444;
 
             this.boolForPredicateComparison = boolForPredicateComparison;
             this.callSituation = callSituation;
-            this.predicateName = callSituation.IsNull() ? null : predicateName;
+            this.predicateName = predicateName;
         }
 
 #if UNITY_EDITOR

@@ -6,9 +6,15 @@ using UnityEngine.Events;
 namespace CWJ.YU.Mobility
 {
 
-    public class LookAtCamUpdater : CWJ.Singleton.SingletonBehaviour<LookAtCamUpdater>
+    public class LookAtCamUpdater : CWJ.Singleton.SingletonBehaviour<LookAtCamUpdater>, INeedSceneObj
     {
-        [SerializeField] Transform mainCamTrf;
+        [SerializeField, Readonly] Transform playerCamTrf;
+        public void SetCamera(Camera camera)
+        {
+            if (camera == null)
+                camera = Camera.main;
+            playerCamTrf = camera.transform;
+        }
 
         [SerializeField] UnityEvent<Vector3, bool> camPosUpdateEvent = null;
 
@@ -27,22 +33,19 @@ namespace CWJ.YU.Mobility
 
         protected override void _Awake()
         {
-            if (mainCamTrf == null)
-                mainCamTrf = Camera.main.transform;
             LastCamPos = Vector3.zero;
         }
-
 
         public static Vector3 LastCamPos;
 
         void Update()
         {
-            if (mainCamTrf == null)
+            if (playerCamTrf == null)
             {
                 return;
             }
 
-            Vector3 curCamPos = mainCamTrf.position;
+            Vector3 curCamPos = playerCamTrf.position;
             camPosUpdateEvent.Invoke(curCamPos, !curCamPos.Equals(LastCamPos));
             LastCamPos = curCamPos;
         }

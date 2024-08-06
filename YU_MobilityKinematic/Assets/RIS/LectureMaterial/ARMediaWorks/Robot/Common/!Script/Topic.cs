@@ -9,6 +9,15 @@ namespace CWJ.YU.Mobility
         public int topicIndex = 0;
         public string topicTitle;
 
+        private void OnEnable()
+        {
+            if (!TopicManager.HasInstance)
+            {
+                TopicManager.InitCommonObjs();
+            }
+            TopicManager.Instance.SetTopic(topicIndex);
+        }
+
         [System.Serializable]
         public class Scenario
         {

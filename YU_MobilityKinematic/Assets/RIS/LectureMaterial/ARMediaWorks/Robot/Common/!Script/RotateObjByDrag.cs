@@ -8,15 +8,15 @@ namespace CWJ.YU.Mobility
     /// <para/>Collider, Rigidbody를 갖고있거나 Canvas안에 image를 가진채 있으면됨
     /// </summary>
     [DisallowMultipleComponent]
-    public class RotateObjByDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
+    public class RotateObjByDrag : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, INeedSceneObj
     {
         public Transform AxesPivot;
         [Range(1, 20f)]
         public float rotateSensivity = 7f;
 
-        [FindObject, SerializeField, ErrorIfNull] Camera playerCam;
+        [SerializeField, Readonly] Camera playerCam;
         Transform playerCamTrf;
-        [GetComponentInParent, SerializeField, ErrorIfNull] Canvas rootCanvas;
+        [GetComponentInParent, SerializeField] Canvas rootCanvas;
         bool hasRigidbody;
 
         public void SetCamera(Camera camera)
@@ -27,8 +27,12 @@ namespace CWJ.YU.Mobility
         }
 
         Quaternion rotBackup;
-        private void Start()
+
+        private void Awake()
         {
+            if (rootCanvas.gameObject.scene != gameObject.scene || rootCanvas == null) rootCanvas = GetComponentInParent<Canvas>(true);
+            if (playerCam.gameObject.scene != gameObject.scene) playerCam = null;
+
             SetCamera(playerCam ?? Camera.main);
             hasRigidbody = GetComponentInParent<Rigidbody>(true) != null;
             rotBackup = AxesPivot.localRotation;
