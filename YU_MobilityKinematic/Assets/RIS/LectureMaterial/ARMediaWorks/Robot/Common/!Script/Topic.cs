@@ -9,11 +9,11 @@ namespace CWJ.YU.Mobility
         public int topicIndex = 0;
         public string topicTitle;
 
-
         [System.Serializable]
         public class Scenario
         {
             public string subTitle;
+            public bool isInit;
             public string context;
             public Transform activateTrf;
             public Transform rotateTargetTrf;
@@ -23,7 +23,7 @@ namespace CWJ.YU.Mobility
                 if (activateTrf != null)
                     activateTrf.gameObject.SetActive(true);
                 if (rotateTargetTrf != null)
-                    ObjRotateHelper.Instance.SetTarget(rotateTargetTrf);
+                    RotateObjByUI.Instance.SetTarget(rotateTargetTrf);
                 if (subTitle == null)
                     Debug.LogError("subTitle is null");
                 TopicManager.Instance.SetSubTitleTxt(subTitle);
@@ -35,7 +35,7 @@ namespace CWJ.YU.Mobility
             public void Disable(bool isForAllInit = false)
             {
                 if (!isForAllInit && rotateTargetTrf != null)
-                    ObjRotateHelper.Instance.SetTarget(null);
+                    RotateObjByUI.Instance.SetTarget(null);
                 if (activateTrf != null)
                     activateTrf.gameObject.SetActive(false);
             }
@@ -60,8 +60,10 @@ namespace CWJ.YU.Mobility
             curScenarioIndex = -1;
             for (int i = 0; i < scenarios.Length; i++)
             {
-                scenarios[i].context = scenarioContexts[i];
+                if (scenarios[i].isInit) continue;
+                scenarios[i].context = scenarioContexts[i].TrimEnd();
                 scenarios[i].Disable(true);
+                scenarios[i].isInit = true;
             }
             gameObject.SetActive(false);
         }

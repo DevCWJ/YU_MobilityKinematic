@@ -11,6 +11,7 @@ namespace CWJ.YU.Mobility
     public class TopicManager : CWJ.Singleton.SingletonBehaviour<TopicManager>
     {
         [SerializeField] TextMeshProUGUI titleTxt;
+        [SerializeField] TextMeshProUGUI titleNumberTxt;
         [SerializeField] TextMeshProUGUI subTitleTxt;
         [SerializeField] TextMeshProUGUI contextTxt;
 
@@ -20,7 +21,14 @@ namespace CWJ.YU.Mobility
         public void SetTitleTxt(string title)
         {
             if (lastTitle == title) return;
-            titleTxt.SetText(lastTitle = title);
+            lastTitle = title;
+            if (title.Contains(")"))
+            {
+                var splits = title.Split(')', 2);
+                titleNumberTxt.SetText(splits[0]);
+                title = splits[1];
+            }
+            titleTxt.SetText(title);
         }
         public void SetSubTitleTxt(string subTitle)
         {
@@ -49,7 +57,7 @@ namespace CWJ.YU.Mobility
 
         public void SetTopic(int index)
         {
-            ObjRotateHelper.Instance.SetTarget(null);
+            RotateObjByUI.Instance.SetTarget(null);
             foreach (Topic topic in topics)
             {
                 topic.Init();

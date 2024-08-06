@@ -502,10 +502,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03485026c81a023468b7ca43cef1f5c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AxesPivot: {fileID: 8265879320648389656}
-  rotateSensivity: 6
-  playerCamera: {fileID: 0}
-  rootCanvas: {fileID: 0}
 --- !u!54 &8987168589202576571
 Rigidbody:
   m_ObjectHideFlags: 0

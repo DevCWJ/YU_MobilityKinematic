@@ -428,11 +428,17 @@ namespace CWJ
         {
             return (Convert.ToInt64(target) & Convert.ToInt64(value)) != 0;
         }
-        //public static bool HasFlag(this Enum e, Enum value)
-        //{
-        //    long v = Convert.ToInt64(value);
-        //    return (Convert.ToInt64(e) & v) == v;
-        //}
+        /// <summary>
+        /// 다중값(EMode.A | EMode.B)이 value로 들어갈시, 모두 같은지 체크할때 사용할것
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool EqualsFlag(this Enum e, Enum value)
+        {
+            long v = Convert.ToInt64(value);
+            return (Convert.ToInt64(e) & v) == v;
+        }
 
         //public static bool HasFlag(this Enum e, ulong value)
         //{
