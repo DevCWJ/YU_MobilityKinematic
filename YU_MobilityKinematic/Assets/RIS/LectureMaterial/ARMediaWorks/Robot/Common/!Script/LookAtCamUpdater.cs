@@ -15,6 +15,7 @@ namespace CWJ.YU.Mobility
                 camera = Camera.main;
             playerCamTrf = camera.transform;
         }
+        public void SetCanvas(Canvas canvas) { }
 
         [SerializeField] UnityEvent<Vector3, bool> camPosUpdateEvent = null;
 

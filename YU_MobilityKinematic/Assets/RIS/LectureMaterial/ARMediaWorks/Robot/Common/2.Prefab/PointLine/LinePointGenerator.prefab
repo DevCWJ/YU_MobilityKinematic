@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &524143206380551730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 524143206380551725}
+  - component: {fileID: 524143206380551724}
+  m_Layer: 0
+  m_Name: LinePointGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &524143206380551725
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 524143206380551730}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.5957174, y: 1.5176675, z: 15.207077}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &524143206380551724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 524143206380551730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a266c7260abe2e44b66e1a6ff6bf0c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _VisualizeCaches: []
+  testPointDatas:
+  - pointTrf: {fileID: 0}
+    color: {r: 0.745283, g: 0.13124475, b: 0.13124475, a: 0}
+  - pointTrf: {fileID: 0}
+    color: {r: 0.8207547, g: 0.74776417, b: 0.1755072, a: 0}
+  - pointTrf: {fileID: 0}
+    color: {r: 0.18155919, g: 0.7712496, b: 0.8490566, a: 0}
+  arrowLines: []
+  targetCameraTrf: {fileID: 0}
+  linePrefab: {fileID: 190176872224661303, guid: 705cf1b65ae55494c8c3387288c6cab7,
+    type: 3}
+  arrowLength: 0.15
+  arrowWidth: 0.15
+  animationTime: 1

@@ -10,14 +10,12 @@ namespace CWJ.YU.Mobility
     public interface INeedSceneObj
     {
         public void SetCamera(Camera camera);
+        public void SetCanvas(Canvas canvas);
     }
 
     public class TopicManager : CWJ.Singleton.SingletonBehaviour<TopicManager>
     {
-        private static bool isInit;
-        public const string CommonObjName = "[CWJ.YU.Common]";
 
-        [Readonly] public Transform commonRootObj;
         public static Camera FindCamera()
         {
             Camera mainCamera = Camera.main;
@@ -25,35 +23,43 @@ namespace CWJ.YU.Mobility
                 mainCamera = FindObjectsOfType<Camera>().FirstOrDefault(c => c.enabled && c.CompareTag("MainCamera"));
             return mainCamera;
         }
-        public static void InitCommonObjs()
+
+        public const string RootPrefabName = "[CWJ.YU.Root]";
+        private static bool _IsInitRootObj;
+        [VisualizeField] static Transform Prefab_RootObj;
+
+        public static void CreateRootObj()
         {
-            if (isInit) return;
-            isInit = true;
-
-            if(!HasInstance || Instance.commonRootObj == null)
+            if (!_IsInitRootObj)
             {
-                var newCommonObj = Resources.Load<GameObject>(CommonObjName);
-                newCommonObj.SetActive(false);
-                newCommonObj.transform.SetParent(null, true);
-                newCommonObj.transform.position = Vector3.zero;
-                newCommonObj.transform.rotation = Quaternion.identity;
-                Instance.commonRootObj = newCommonObj.transform;
-            }
-            Instance.commonRootObj.gameObject.SetActive(true);
+                _IsInitRootObj = true;
 
+                if (Prefab_RootObj == null)
+                {
+                    var newCommonObj = Instantiate(Resources.Load<GameObject>(RootPrefabName));
+                    newCommonObj.SetActive(false);
+                    newCommonObj.transform.SetParent(null, true);
+                    newCommonObj.transform.position = Vector3.zero;
+                    newCommonObj.transform.rotation = Quaternion.identity;
+                    Prefab_RootObj = newCommonObj.transform;
+                }
+                UpdateInstance(isPrintLogOrPopup: false);
+            }
+
+            Prefab_RootObj.gameObject.SetActive(true);
         }
 
         protected override void _OnDestroy()
         {
-            isInit = false;
+            _IsInitRootObj = false;
         }
 
         [SerializeField] TextMeshProUGUI titleTxt;
         [SerializeField] TextMeshProUGUI titleNumberTxt;
         [SerializeField] TextMeshProUGUI subTitleTxt;
         [SerializeField] TextMeshProUGUI contextTxt;
-
         [SerializeField] Button prevBtn, nextBtn;
+        public Transform topicParentTrf;
 
         string lastTitle, lastSubTitle, lastContext;
         public void SetTitleTxt(string title)
@@ -79,38 +85,53 @@ namespace CWJ.YU.Mobility
             contextTxt.SetText(lastContext = context);
         }
 
-        public Topic[] topics;
+        public CWJ.Serializable.DictionaryVisualized<int, Topic> topicDics = new Serializable.DictionaryVisualized<int, Topic>(10);
         public int curTopicIndex;
-
-        protected override void OnBeforeInstanceAssigned()
-        {
-            Debug.LogError("OnBeforeInstanceAssigned()");
-            topics = CWJ.FindUtil.FindObjectsOfType_New<Topic>(true, true).OrderBy(t => t.topicIndex).ToArray();
-        }
 
         protected override void _Awake()
         {
-            Debug.LogError("Awake");
-            prevBtn.onClick.AddListener(() => topics[curTopicIndex].Previous());
-            nextBtn.onClick.AddListener(() => topics[curTopicIndex].Next());
+            prevBtn.onClick.AddListener(OnClickPrev);
+            nextBtn.onClick.AddListener(OnClickNext);
+        }
+
+        void OnClickPrev() { topicDics[curTopicIndex].Previous(); }
+        void OnClickNext() { topicDics[curTopicIndex].Next(); }
+
+        public bool TryAddToDict(Topic topic)
+        {
+            if (topicDics.TryAdd(topic.topicIndex, topic))
+            { //Topic 최초 추가
+                if (topicParentTrf != topic.transform.parent)
+                {
+                    topic.canvasScaler.localScale = Vector3.one;
+                    topic.transform.SetParent(topicParentTrf);
+                    topic.transform.Reset();
+                }
+                return true;
+            }
+            return false;
         }
 
         public void SetTopic(int index)
         {
-            var needUpdateObjs = FindUtil.FindInterfaces<INeedSceneObj>(false);
             var mainCam = FindCamera();
+            var rootCanvas = titleTxt.GetComponentInParent<Canvas>();
+            if (rootCanvas.worldCamera != mainCam)
+                rootCanvas.worldCamera = mainCam;
+            var needUpdateObjs = FindUtil.FindInterfaces<INeedSceneObj>(false);
             foreach (var obj in needUpdateObjs)
             {
                 obj.SetCamera(mainCam);
+                obj.SetCanvas(rootCanvas);
             }
 
             RotateObjByUI.Instance.SetTarget(null);
-            foreach (Topic topic in topics)
+            foreach (Topic topic in topicDics.Values.ToArray())
             {
                 topic.Init();
             }
             curTopicIndex = index;
-            topics[index].Next();
+            topicDics[curTopicIndex].Next();
         }
     }
 }

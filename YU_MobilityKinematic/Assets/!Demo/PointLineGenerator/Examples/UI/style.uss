@@ -1,0 +1,3 @@
+#animated-toggle > .unity-label {
+    color: rgba(210, 210, 210, 255);
+}

@@ -8,7 +8,7 @@ namespace CWJ.YU.Mobility
 {
     public class RotateObjByUI : CWJ.Singleton.SingletonBehaviour<RotateObjByUI>
     {
-        [SerializeField, ErrorIfNull] RotateObjByDrag rotateAxes;
+        [VisualizeField] public RotateObjByDrag rotateAxes;
 
         [SerializeField] Button leftBtn, rightBtn;
 
@@ -24,14 +24,14 @@ namespace CWJ.YU.Mobility
             rightBtn.AddShortPressUpEvent(OnClickRightShortPressUp, 0.25f);
 
 
-            initRotBtn.onClick.AddListener_New(OnClickInitBtn);
+            initRotBtn.onClick.AddListener_New(ResetRotation);
             holdRotToggle.onValueChanged.AddListener_New(OnToggleChanged);
             SetTarget(null);
         }
 
-        public void SetTarget(Transform trf)
+        public void SetTarget(Transform targetTrf)
         {
-            rotateAxes = trf?.GetComponentInChildren<RotateObjByDrag>(true);
+            rotateAxes = targetTrf?.GetComponentInChildren<RotateObjByDrag>(true);
             bool hasTargetTrf = rotateAxes != null && rotateAxes.AxesPivot != null;
             if (!hasTargetTrf)
                 rotateAxes = null;
@@ -56,7 +56,7 @@ namespace CWJ.YU.Mobility
             rotateAxes.enabled = !isHoldRot;
         }
 
-        void OnClickInitBtn()
+        public void ResetRotation()
         {
             if (rotateAxes == null) return;
             rotateAxes.ResetRotation();

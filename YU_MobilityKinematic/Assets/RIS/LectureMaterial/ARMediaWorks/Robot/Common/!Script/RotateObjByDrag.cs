@@ -14,9 +14,9 @@ namespace CWJ.YU.Mobility
         [Range(1, 20f)]
         public float rotateSensivity = 7f;
 
-        [SerializeField, Readonly] Camera playerCam;
+        [VisualizeField] Camera playerCam;
         Transform playerCamTrf;
-        [GetComponentInParent, SerializeField] Canvas rootCanvas;
+        [VisualizeField] Canvas rootCanvas;
         bool hasRigidbody;
 
         public void SetCamera(Camera camera)
@@ -26,14 +26,16 @@ namespace CWJ.YU.Mobility
             playerCamTrf = playerCam.transform;
         }
 
+        public void SetCanvas(Canvas canvas)
+        {
+            if (canvas == null) return;
+            rootCanvas = canvas;
+        }
+
         Quaternion rotBackup;
 
         private void Awake()
         {
-            if (rootCanvas.gameObject.scene != gameObject.scene || rootCanvas == null) rootCanvas = GetComponentInParent<Canvas>(true);
-            if (playerCam.gameObject.scene != gameObject.scene) playerCam = null;
-
-            SetCamera(playerCam ?? Camera.main);
             hasRigidbody = GetComponentInParent<Rigidbody>(true) != null;
             rotBackup = AxesPivot.localRotation;
         }
@@ -54,9 +56,9 @@ namespace CWJ.YU.Mobility
 
         Vector3 GetMousePos_WorldSpace(Vector3 mousePos)
         {
-            mousePos = (rootCanvas.renderMode == RenderMode.ScreenSpaceCamera
-                ? mousePos.CanvasToWorldPos_ScreenSpaceRenderMode(playerCam, rootCanvas)
-                : mousePos.CanvasToWorldPos_WorldSpaceRenderMode(playerCam, rootCanvas));
+            mousePos = (rootCanvas == null || rootCanvas.renderMode == RenderMode.WorldSpace ?
+                mousePos.CanvasToWorldPos_WorldSpaceRenderMode(playerCam, rootCanvas)
+                : mousePos.CanvasToWorldPos_ScreenSpaceRenderMode(playerCam, rootCanvas));
             return mousePos;
         }
 

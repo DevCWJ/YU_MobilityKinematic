@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/ArrowMaker/Examples/3D/style.uss?fileID=7433441132597879392&amp;guid=3c878c5f2889e2d418fd9754f16af0a2&amp;type=3#style" />
+    <ui:Toggle label="Animated" value="true" name="animated-toggle" />
+</ui:UXML>

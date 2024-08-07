@@ -55,7 +55,11 @@ namespace CWJ.Serializable
             get
             {
                 if (_ComparerField == null)
-                    _ComparerField = dicType.GetField("comparer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                {
+                    _ComparerField = dicType.GetField("_comparer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (_ComparerField == null)
+                        _ComparerField = dicType.GetField("comparer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                }
 
                 return _ComparerField;
             }

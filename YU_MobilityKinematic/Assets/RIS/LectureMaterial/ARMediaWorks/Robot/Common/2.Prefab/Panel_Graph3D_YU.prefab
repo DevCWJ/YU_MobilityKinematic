@@ -504,8 +504,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AxesPivot: {fileID: 8265879320648389656}
   rotateSensivity: 7
-  playerCam: {fileID: 0}
-  rootCanvas: {fileID: 0}
 --- !u!54 &8987168589202576571
 Rigidbody:
   m_ObjectHideFlags: 0
