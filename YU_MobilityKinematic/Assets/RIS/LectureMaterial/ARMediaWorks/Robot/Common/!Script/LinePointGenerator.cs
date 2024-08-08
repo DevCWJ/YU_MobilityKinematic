@@ -5,42 +5,30 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using TMPro;
+
 using UnityEngine;
 
 namespace CWJ
 {
-  
-
+    /// <summary>
+    /// CWJ
+    /// <para/>
+    /// 점을 선으로 이어주는 녀석. 캐싱기능도 추가해놓음
+    /// </summary>
     public class LinePointGenerator : CWJ.Singleton.SingletonBehaviour<LinePointGenerator>, INeedSceneObj, CWJ.Singleton.IDontAutoCreatedWhenNull
     {
-        //public CWJ.Serializable.DictionaryVisualized<int, LinePointIns[]> _Cache;
-        static Dictionary<int, LinePointIns[]> _Cache = new Dictionary<int, LinePointIns[]>();
-
 #if UNITY_EDITOR
-        [SerializeField] List<VisualizeCache> _VisualizeCaches = new List<VisualizeCache>();
-        [Serializable]
-        public struct VisualizeCache
-        {
-            public Transform[] points;
-            public LineRenderer[] LineRenderers;
-            public LineRenderer[] capRenderers;
-
-            public VisualizeCache(LinePointIns[] linePointIns)
-            {
-                points = new Transform[linePointIns.Length];
-                LineRenderers = new LineRenderer[linePointIns.Length];
-                capRenderers = new LineRenderer[linePointIns.Length];
-                int i = 0;
-                foreach (var item in linePointIns)
-                {
-                    points[i] = item.fromTrf;
-                    LineRenderers[i] = item.lineRndr;
-                    capRenderers[i] = item.capRndr;
-                    i++;
-                }
-
-            }
-        }
+        [SerializeField] CWJ.Serializable.DictionaryVisualized<int, LinePointIns[]>
+#else
+        Dictionary<int, LinePointIns[]>
+#endif
+            _CacheData = 
+            
+#if UNITY_EDITOR
+            new CWJ.Serializable.DictionaryVisualized<int, LinePointIns[]>();
+#else
+            new Dictionary<int, LinePointIns[]>();
 #endif
 
         [Serializable]
@@ -49,9 +37,15 @@ namespace CWJ
             public Transform pointTrf;
             [ColorUsage(true, true)]
             public Color color;
+
+            public PointData(Transform pointTrf, Color color)
+            {
+                this.pointTrf = pointTrf;
+                this.color = color;
+            }
         }
 
-        static int GetCacheKey(bool isLineLoop, PointData[] _points)
+        static int GetCacheID(bool isLineLoop, PointData[] _points)
         {
             var instanceIDs = _points.Select(p => p.pointTrf.GetInstanceID()).ToArray();
             int hash = 17;
@@ -65,8 +59,11 @@ namespace CWJ
 
 
         [Serializable]
-        public struct LinePointIns
+        public class LinePointIns
         {
+#if UNITY_EDITOR
+            [SerializeField] string insName;
+#endif
             public bool isVerified;
             public bool isLineLoop;
             public Transform fromTrf;
@@ -75,15 +72,32 @@ namespace CWJ
             public LineRenderer lineRndr;
             public LineRenderer capRndr;
 
-            public LinePointIns(LinePointIns src)
+            public float arrowHeight, arrowWidth;
+
+            public bool isGenerateOrAnimDone;
+            public Vector3 lastFromPos;
+            public Vector3 lastToPos;
+
+            public LinePointIns(bool isLineLoop, Transform fromTrf, Transform toTrf, bool isLineRndrSingle, LineRenderer lineRndr, LineRenderer capRndr, float arrowHeight, float arrowWidth)
             {
-                this.isVerified = src.isVerified;
-                this.isLineLoop = src.isLineLoop;
-                this.fromTrf = src.fromTrf;
-                this.toTrf = src.toTrf;
-                this.isLineRndrSingle = src.isLineRndrSingle;
-                this.lineRndr = src.lineRndr;
-                this.capRndr = src.capRndr;
+                this.fromTrf = fromTrf;
+                this.toTrf = toTrf;
+                this.lineRndr = lineRndr;
+                this.capRndr = capRndr;
+                this.isLineRndrSingle = isLineRndrSingle;
+
+                this.isVerified = true;
+                this.isVerified = CheckIsVerified();
+                isGenerateOrAnimDone = !isVerified;
+#if UNITY_EDITOR
+                this.insName = isVerified ? $"{fromTrf.name}->{toTrf.name}" : "VerifiedError";
+#endif
+                this.isLineLoop = isLineLoop;
+
+                lastFromPos = Vector3.zero;
+                lastToPos = Vector3.zero;
+                this.arrowHeight = arrowHeight;
+                this.arrowWidth = arrowWidth;
             }
 
             public bool CheckIsVerified()
@@ -96,57 +110,60 @@ namespace CWJ
                 {
                     return false;
                 }
-                if (!isLineRndrSingle && capRndr == null)
+                if (!fromTrf.gameObject.activeInHierarchy || !toTrf.gameObject.activeInHierarchy)
                 {
                     return false;
                 }
                 return true;
             }
-        }
 
-        protected override void _Awake()
-        {
-            _Cache = new Dictionary<int, LinePointIns[]>();
+            public bool EqualsCurTrfPos(out Vector3 curFromPos , out Vector3 curToPos)
+            {
+                curFromPos = fromTrf.position;
+                curToPos = toTrf.position;
+                return (curFromPos.Equals(lastFromPos) && curToPos.Equals(lastToPos));
+            }
         }
 
         public void SetCamera(Camera camera)
         {
-            if(camera != null)
-            targetCameraTrf = camera.transform;
+            targetCameraTrf = (camera == null) ? Camera.main.transform : camera.transform;
         }
 
         public void SetCanvas(Canvas canvas) { }
 
         [SerializeField] private List<PointData> testPointDatas;
 
-        public LineRenderer[] arrowLines;
-
         public Transform targetCameraTrf;
-        public GameObject linePrefab;
-        public float arrowLength = 0.1f;
-        public float arrowWidth = 0.1f;
+        [SerializeField] GameObject linePrefab;
+        [SerializeField] MeshRenderer pointPrefab;
+        [SerializeField] TMPro.TextMeshPro prefab_text;
+
+        string[] pointChildPrefabNames;
+
+        public float arrowHeight = 0.25f;
+        public float arrowWidth = 0.25f;
         public float animationTime = 1.0f;
 
-        public static LinePointIns[] Create(PointData pointData, bool isLineLoop, bool hasAnimation)
-        {
-            return Create(new PointData[1] { pointData }, isLineLoop, hasAnimation);
-        }
-
-        public struct GenerateParams
-        {
-            public Transform cameraTrf;
-            public float arrowLength;
-            public float arrowWidth;
-            public float animationTime;
-        }
-
+        /// <summary>
+        /// 포인트지점 Transform은 모두 활성화 상태여야함
+        /// </summary>
+        /// <param name="pointDatas"></param>
+        /// <param name="isLineLoop"></param>
+        /// <param name="hasAnimation"></param>
+        /// <param name="arrowHeight"></param>
+        /// <param name="arrowWidth"></param>
+        /// <param name="animTime"></param>
+        /// <returns></returns>
         [InvokeButton]
-        public static LinePointIns[] Create(PointData[] pointDatas, bool isLineLoop, bool hasAnimation)
+        public static int Create(PointData[] pointDatas, bool isLineLoop, bool hasAnimation, float arrowHeight = -1, float arrowWidth=-1, float animTime=-1)
         {
-            var cacheKeyID = GetCacheKey(isLineLoop, pointDatas);
+            var cacheID = GetCacheID(isLineLoop, pointDatas);
             var helper = LinePointGenerator.Instance;
+            arrowHeight = arrowHeight == -1 ? helper.arrowHeight : arrowHeight;
+            arrowWidth = arrowWidth == -1 ? helper.arrowWidth : arrowWidth;
 
-            if (!_Cache.TryGetValue(cacheKeyID, out var instanceList))
+            if (!helper._CacheData.TryGetValue(cacheID, out var instanceList))
             {
                 var newInsList = new List<LinePointIns>();
 
@@ -165,10 +182,38 @@ namespace CWJ
                         }
                     }
 
-                    var lrObj = Instantiate(helper.linePrefab, helper.transform);
-                    var from = pointDatas[i].pointTrf;
-                    var to = pointDatas[next].pointTrf;
+                    var fromTrf = pointDatas[i].pointTrf;
+                    var toTrf = pointDatas[next].pointTrf;
+
+                    if (fromTrf == null || toTrf == null)
+                    {
+                        Debug.LogError("LinePointGenerator.Create : from to 어쨋음?");
+                        continue;
+                    }
+
                     var color = pointDatas[i].color;
+                    if (color.a == 0) //실수일것
+                        color = new Color(color.r, color.g, color.b, 1f);
+
+                    MeshRenderer pointObjRndr = Instantiate(helper.pointPrefab);
+                    pointObjRndr.transform.SetParent(null, true);
+                    pointObjRndr.transform.localScale = Vector3.one * arrowWidth * 2;
+                    pointObjRndr.transform.SetParent(fromTrf, true);
+                    pointObjRndr.transform.localPosition = Vector3.zero;
+                    var pointColor = new Color(color.r, color.g, color.b, 0.9f);
+                    pointObjRndr.material.SetColor("_BaseColor", pointColor);
+
+                    TextMeshPro text = Instantiate(helper.prefab_text);
+                    text.transform.SetParent(null, true);
+                    text.transform.localScale = Vector3.one * arrowWidth * 10;
+                    text.transform.SetParent(fromTrf, true);
+                    text.transform.localPosition = Vector3.zero;
+                    text.transform.localRotation = Quaternion.identity;
+                    text.SetText(fromTrf.gameObject.name);
+                    var textColor = new Color(color.r, color.g, color.b, 1);
+                    text.color = textColor;
+
+                    var lrObj = Instantiate(helper.linePrefab, helper.transform);
 
                     bool isSingle = true;
                     LineRenderer lineRenderer = lrObj.GetComponent<LineRenderer>();
@@ -190,43 +235,31 @@ namespace CWJ
                         }
                     }
 
-                    var lpIns = new LinePointIns
+                    var lpIns = new LinePointIns( isLineLoop, fromTrf, toTrf, isSingle, lineRenderer, capRenderer, arrowHeight, arrowWidth);
+                    if (!lpIns.isVerified)
                     {
-                        isVerified = true,
-                        isLineLoop= isLineLoop,
-                        fromTrf = from,
-                        toTrf = to,
-                        isLineRndrSingle = isSingle,
-                        lineRndr = lineRenderer,
-                        capRndr = capRenderer
-                    };
-
+#if UNITY_EDITOR
+                        Debug.LogError("제작중 문제가 있어 취소");
+#endif
+                        return -1;
+                    }
                     newInsList.Add(lpIns);
-
                 }
 
                 instanceList = newInsList.ToArray();
-                _Cache.Add(cacheKeyID, instanceList);
-#if UNITY_EDITOR
-                Instance._VisualizeCaches.Add(new VisualizeCache(instanceList));
-#endif
+                helper._CacheData.Add(cacheID, instanceList);
             }
 
-            var genParams = new GenerateParams
-            {
-                cameraTrf = helper.targetCameraTrf,
-                arrowLength = helper.arrowLength,
-                arrowWidth = helper.arrowWidth,
-                animationTime = helper.animationTime
-            };
+            float animationTime = animTime == -1 ? helper.animationTime : animTime;
 
             for (int i = 0; i < instanceList.Length; ++i)
             {
                 var lpIns = instanceList[i];
+                lpIns.arrowHeight = arrowHeight;
+                lpIns.arrowWidth = arrowWidth;
                 if (lpIns.CheckIsVerified())
                 {
-                    var color = pointDatas[i].color;
-                    helper.GenerateLineAndPoint(lpIns, color, hasAnimation, genParams);
+                    helper.GenerateLineAndPoint(lpIns, pointDatas[i].color, hasAnimation, animationTime);
                 }
                 else
                 {
@@ -236,7 +269,7 @@ namespace CWJ
                 }
             }
 
-            return instanceList;
+            return cacheID;
         }
 
         [InvokeButton]
@@ -245,83 +278,188 @@ namespace CWJ
             Create(testPointDatas.ToArray(), isLoop, hasAnim);
         }
 
+        List<int> willRemoveList = null;
 
-        void GenerateLineAndPoint(LinePointIns linePointIns, Color color, bool hasAnimation, GenerateParams genParams)
+        protected override void _Awake()
         {
-            var lineRenderer = linePointIns.lineRndr;
-            var capRenderer = linePointIns.capRndr;
-            bool single = linePointIns.isLineRndrSingle;
-            Vector3 pointA = linePointIns.fromTrf.localPosition;
-            Vector3 pointB = linePointIns.toTrf.localPosition;
+            pointChildPrefabNames = new string[]
+            {
+                pointPrefab.gameObject.name,
+                prefab_text.gameObject.name
+            };
+        }
 
-            if(capRenderer!=null)
-                capRenderer.material.color = color;
-            lineRenderer.material.color = color;
+        private void LateUpdate()
+        {
+            if (_CacheData.Count > 0)
+            {
+                foreach (var kv in _CacheData)
+                {
+                    foreach (var lpIns in kv.Value)
+                    {
+                        if (!lpIns.CheckIsVerified())
+                        {
+                            if (willRemoveList == null)
+                                willRemoveList = new List<int>();
+                            willRemoveList.Add(kv.Key);
+                            break;
+                        }
+
+                        if (!lpIns.isGenerateOrAnimDone)
+                        {
+                            continue;
+                        }
+
+                        if (!lpIns.EqualsCurTrfPos(out var curFromPos, out var curToPos))
+                        {
+                            UpdateLinePos(lpIns, curFromPos, curToPos);
+                        }
+                    }
+                }
+            }
+
+            if (willRemoveList != null)
+            {
+                int[] removeKeys = willRemoveList.ToArray();
+                willRemoveList.Clear();
+                willRemoveList = null;
+                foreach (var key in removeKeys)
+                {
+                    DestroyLineObj(key);
+                }
+            }
+        }
+
+        public void DestroyLineObj(int cacheID)
+        {
+            if (!_CacheData.TryGetValue(cacheID, out var insArr))
+            {
+                return;
+            }
+            insArr.Do(ins =>
+            {
+                if (ins.fromTrf != null && ins.fromTrf.childCount > 0)
+                {
+                    for (int i = 0; i < pointChildPrefabNames.Length; i++)
+                    {
+                        var child = ins.fromTrf.Find(pointChildPrefabNames[i]);
+                        Destroy(child);
+                    }
+                }
+                if (ins.lineRndr != null)
+                {
+                    if (ins.lineRndr.transform.parent == Instance.transform)
+                        Destroy(ins.lineRndr.gameObject);
+                    else
+                        Destroy(ins.lineRndr.transform.parent.gameObject);
+                }
+            });
+            _CacheData.Remove(cacheID);
+        }
+
+        void GenerateLineAndPoint(LinePointIns linePointIns, Color color, bool hasAnimation, float animationTime)
+        {
+            linePointIns.isGenerateOrAnimDone = false;
+            
+            Vector3 curFromPos = linePointIns.fromTrf.position;
+            Vector3 curToPos = linePointIns.toTrf.position;
+
+            var color1 = new Color(color.r, color.g, color.b, 1);
+            linePointIns.lastFromPos = curFromPos;
+            linePointIns.lastToPos = curToPos;
+            if (linePointIns.capRndr != null)
+            {
+                linePointIns.capRndr.material.SetColor("_BaseColor", color1);
+                linePointIns.capRndr.startColor = color1;
+                linePointIns.capRndr.endColor = color1;
+            }
+            linePointIns.lineRndr.material.SetColor("_BaseColor", color1);
+            linePointIns.lineRndr.startColor = color1;
+            linePointIns.lineRndr.endColor = color1;
 
             if (hasAnimation)
             {
 #if UNITY_2023_1_OR_NEWER
-                _= _GenerateLinePointWithAnimation(lineRenderer, capRenderer, single, pointA, pointB, color, genParams);
+                _= _GenerateLinePointWithAnimation(linePointIns, animationTime);
 #else
-                StartCoroutine(IE_GenerateLinePointWithAnimation(lineRenderer, capRenderer, single, pointA, pointB, color, genParams));
+                StartCoroutine(IE_GenerateLinePointWithAnimation(linePointIns, animationTime));
 #endif
                 return;
-            } // or immediately
+            }
+            else // or immediately
+            {
+                UpdateLinePos(linePointIns, curFromPos, curToPos);
+            }
+            return;
+        }
 
+        void UpdateLinePos(LinePointIns linePointIns, Vector3 from, Vector3 to)
+        {
+            linePointIns.lastFromPos = from;
+            linePointIns.lastToPos = to;
+            //linePointIns.isGenerateOrAnimDone = false;
+            var lineRenderer = linePointIns.lineRndr;
+            var capRenderer = linePointIns.capRndr;
+            bool single = linePointIns.isLineRndrSingle;
+            float arrowHeight = linePointIns.arrowHeight;
+            float arrowWidth = linePointIns.arrowWidth;
 
-
-            var arrowLength = genParams.arrowLength;
-            var arrowWidth = genParams.arrowWidth;
-
-            var distance = Vector3.Distance(pointA, pointB);
-            var minLen = Math.Sqrt(arrowLength * arrowLength + arrowWidth * arrowWidth);
+            var distance = Vector3.Distance(from, to);
+            var minLen = Math.Sqrt(arrowHeight * arrowHeight + arrowWidth * arrowWidth);
 
             if (distance < minLen)
             {
-                Debug.LogWarning("The line is not long enough for the arrow, adjusting the arrow length");
-                arrowLength = distance;
+                arrowHeight = distance;
             }
 
-            var pointC = pointB + arrowLength * (pointA - pointB) / distance;
+            var pointC = to + arrowHeight * (from - to) / distance;
 
-            var camPoint = genParams.cameraTrf.position;
-            var s1 = pointA - camPoint;
-            var s2 = pointB - camPoint;
+            var camPoint = (Instance.targetCameraTrf ?? Camera.main.transform).position;
+            var s1 = from - camPoint;
+            var s2 = to - camPoint;
 
             var normal = Vector3.Cross(s1, s2).normalized;
 
-            var pointD = pointC + arrowWidth * normal;
-            var pointE = pointC - arrowWidth * normal;
+            var pointD = pointC + (arrowWidth * 1.2f) * normal;
+            var pointE = pointC - (arrowWidth * 1.2f) * normal;
 
-            lineRenderer.SetPosition(0, pointA);
+            lineRenderer.SetPosition(0, from);
             lineRenderer.SetPosition(1, pointC);
 
             if (single)
             {
                 lineRenderer.SetPosition(2, pointD);
-                lineRenderer.SetPosition(3, pointB);
+                lineRenderer.SetPosition(3, to);
                 lineRenderer.SetPosition(4, pointE);
                 lineRenderer.SetPosition(5, pointD);
             }
             else
             {
                 capRenderer.SetPosition(0, pointD);
-                capRenderer.SetPosition(1, pointB);
+                capRenderer.SetPosition(1, to);
                 capRenderer.SetPosition(2, pointE);
                 //capRenderer.SetPosition(3, pointD);
             }
-            return;
+            linePointIns.isGenerateOrAnimDone = true;
         }
 
-        Coroutine CO_GenerateLinePointWithAnimation = null;
+
 
 #if UNITY_2023_1_OR_NEWER
-        async Awaitable _GenerateLinePointWithAnimation(LineRenderer lineRenderer, LineRenderer capRenderer, bool single, Vector3 pointA, Vector3 pointB, Color color, GenerateParams genParams)
+        async Awaitable _GenerateLinePointWithAnimation(LinePointIns linePointIns, float animationTime)
 #else
-        IEnumerator IE_GenerateLinePointWithAnimation(LineRenderer lineRenderer, LineRenderer capRenderer, bool single, Vector3 pointA, Vector3 pointB, Color color, GenerateParams genParams)
+        IEnumerator IE_GenerateLinePointWithAnimation(LinePointIns linePointIns, float animationTime)
 #endif
         {
-            yield return null;
+            linePointIns.isGenerateOrAnimDone = false;
+            Vector3 _from = linePointIns.lastFromPos;
+            Vector3 _to = linePointIns.lastToPos;
+
+            var lineRenderer = linePointIns.lineRndr;
+            var capRenderer = linePointIns.capRndr;
+            bool single = linePointIns.isLineRndrSingle;
+            var arrowHeight = linePointIns.arrowHeight;
+            var arrowWidth = linePointIns.arrowWidth;
 
             var maxWidth = 0f;
             foreach (var k in lineRenderer.widthCurve.keys)
@@ -333,41 +471,45 @@ namespace CWJ
             }
             maxWidth *= lineRenderer.widthMultiplier;
 
-            var arrowLength = genParams.arrowLength;
-            var arrowWidth = genParams.arrowWidth;
-            var minLen = Math.Sqrt(arrowLength * arrowLength + arrowWidth * arrowWidth);
-            var distance = Vector3.Distance(pointA, pointB);
+            var minLen = Math.Sqrt(arrowHeight * arrowHeight + arrowWidth * arrowWidth);
+            var distance = Vector3.Distance(_from, _to);
 
-            if (distance < arrowLength)
+            if (distance < arrowHeight)
             {
-                Debug.LogWarning("The line is not long enough for the arrow, adjusting the arrow length");
-                arrowLength = distance;
+                arrowHeight = distance;
             }
 
-            var dir = pointB - pointA;
-            var camPoint = genParams.cameraTrf.position;
-            var s1 = pointA - camPoint;
-            var s2 = pointB - camPoint;
+            var dir = _to - _from;
+            var camPoint = (Instance.targetCameraTrf ?? Camera.main.transform).position;
+            var s1 = _from - camPoint;
+            var s2 = _to - camPoint;
 
             var normal = Vector3.Cross(s1, s2).normalized;
 
+            Vector3 from() => linePointIns.fromTrf.position;
+            Vector3 to() => linePointIns.toTrf.position;
+
             var totalTime = 0f;
-            while (totalTime < genParams.animationTime)
+            while (totalTime < animationTime)
             {
-                var timeRatio = totalTime / genParams.animationTime;
+                if (!linePointIns.CheckIsVerified())
+                {
+                    yield break;
+                }
 
-                var len = arrowLength * timeRatio;
+                var timeRatio = totalTime / animationTime;
 
-                var pointB2 = pointA + timeRatio * (pointB - pointA);
-                var pointC = pointB2 + len * (pointA - pointB) / distance;
+                var len = arrowHeight * timeRatio;
+
+                var pointB2 = from() + timeRatio * (to() - from());
+                var pointC = pointB2 + len * (from() - to()) / distance;
 
                 var pointD = pointC + arrowWidth * normal;
                 var pointE = pointC - arrowWidth * normal;
 
-
-                if (Vector3.Distance(pointA, pointC) >= maxWidth)
+                if (Vector3.Distance(from(), pointC) >= maxWidth)
                 {
-                    lineRenderer.SetPosition(0, pointA);
+                    lineRenderer.SetPosition(0, from());
                     lineRenderer.SetPosition(1, pointC);
                     if (single)
                     {
@@ -392,8 +534,7 @@ namespace CWJ
 #endif
             }
 
-            CO_GenerateLinePointWithAnimation = null;
-
+            linePointIns.isGenerateOrAnimDone = true;
         }
     }
 }

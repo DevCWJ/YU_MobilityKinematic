@@ -25,8 +25,7 @@ namespace CWJ.AccessibleEditor
                             CWJ_EditorEventHelper.OnUnityDevToolDelete();
                             typeof(ScriptableObjectStore).PrintLogWithClassName($"CWJ.UnityDevTool is Deleted.\nor {nameof(ScriptableObjectStore)}'s PATH is Wrong", LogType.Error);
                         }
-
-                        obj = CreateScriptableObj<ScriptableObjectStore>(MyPath);
+                        //obj = CreateScriptableObj<ScriptableObjectStore>(MyPath);
                     }
                     _Instance = obj;
                 }

@@ -36,17 +36,22 @@ namespace CWJ.YU.Mobility
 
                 if (Prefab_RootObj == null)
                 {
-                    var newCommonObj = Instantiate(Resources.Load<GameObject>(RootPrefabName));
-                    newCommonObj.SetActive(false);
-                    newCommonObj.transform.SetParent(null, true);
-                    newCommonObj.transform.position = Vector3.zero;
-                    newCommonObj.transform.rotation = Quaternion.identity;
+                    var newCommonObj = FindUtil.GetRootGameObjects_New(true).FirstOrDefault(g => g != null && g.name.Equals(RootPrefabName));
+                    if (newCommonObj == null)
+                    {
+                        newCommonObj = Instantiate(Resources.Load<GameObject>(RootPrefabName));
+                        newCommonObj.SetActive(false);
+                        newCommonObj.transform.SetParent(null, true);
+                        newCommonObj.transform.position = Vector3.zero;
+                        newCommonObj.transform.rotation = Quaternion.identity;
+                    }
+
                     Prefab_RootObj = newCommonObj.transform;
                 }
                 UpdateInstance(isPrintLogOrPopup: false);
             }
-
-            Prefab_RootObj.gameObject.SetActive(true);
+            if (!Prefab_RootObj.gameObject.activeSelf)
+                Prefab_RootObj.gameObject.SetActive(true);
         }
 
         protected override void _OnDestroy()

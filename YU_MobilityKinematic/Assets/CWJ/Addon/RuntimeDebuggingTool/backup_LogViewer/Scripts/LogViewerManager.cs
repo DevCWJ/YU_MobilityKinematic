@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -142,9 +143,27 @@ namespace CWJ.RuntimeDebugging
 #if !UNITY_EDITOR && UNITY_ANDROID
 		private DebugLogLogcatListener logcatListener;
 #endif
+        static Thread mainThread = null;
+        private void Awake()
+        {
+            mainThread = System.Threading.Thread.CurrentThread;
+        }
+        static bool IsMainThread()
+        {
+            return mainThread != null && mainThread.Equals(System.Threading.Thread.CurrentThread);
+        }
+
+        static bool isRebuildingGraphics = false;
+        void StartRebuild()
+        {
+            isRebuildingGraphics = true;
+        }
 
         private void OnEnable()
         {
+#if CWJ_DEVELOPMENT_BUILD
+            Canvas.preWillRenderCanvases += StartRebuild;
+#endif
             if (instance == null)
             {
                 instance = this;
@@ -208,7 +227,10 @@ namespace CWJ.RuntimeDebugging
 
         private void OnDisable()
         {
-   
+#if CWJ_DEVELOPMENT_BUILD
+            Canvas.preWillRenderCanvases -= StartRebuild;
+#endif
+
             Application.logMessageReceived -= ReceivedLog;
 
 #if !UNITY_EDITOR && UNITY_ANDROID
@@ -233,11 +255,26 @@ namespace CWJ.RuntimeDebugging
             screenDimensionsChanged = true;
         }
 
+        private void Update()
+        {
+            if (isRebuildingGraphics)
+            {
+                isRebuildingGraphics = false;
+            }
+        }
+
         private void LateUpdate()
         {
+            if (_WaitingLogData.Count > 0)
+            {
+                while (_WaitingLogData.TryDequeue(out var logData))
+                {
+                    ReceivedLog(logData.logString, logData.stackTrace, logData.logType);
+                }
+            }
+
             if (screenDimensionsChanged)
             {
-       
                 if (isLogWindowVisible)
                     recycledListView.OnViewportDimensionsChanged();
                 else
@@ -289,11 +326,18 @@ namespace CWJ.RuntimeDebugging
 
             return addedChar;
         }
+        private static Queue<(string logString, string stackTrace, LogType logType)> _WaitingLogData = new Queue<(string logString, string stackTrace, LogType logType)>();
 
         private void ReceivedLog(string logString, string stackTrace, LogType logType)
         {
-            if(logType == LogType.Exception)
+            if (logType == LogType.Exception)
             {
+                logType = LogType.Error;
+            }
+
+            if (!IsMainThread() || isRebuildingGraphics)
+            {
+                _WaitingLogData.Enqueue((logString, stackTrace, logType));
                 return;
             }
 
