@@ -407,10 +407,13 @@ namespace CWJ.AccessibleEditor
             }
         }
 
-        public static void PingObj(GameObject pingObj)
+        public static void PingObj(GameObject pingObj, bool isChangeSelection = true)
         {
+#if UNITY_EDITOR
             EditorGUIUtility.PingObject(pingObj);
-            Selection.activeObject = pingObj;
+            if (isChangeSelection)
+                Selection.activeObject = pingObj;
+#endif
         }
 
         public static void PingAssetFile(string path, string log = null, LogType logType = LogType.Log)

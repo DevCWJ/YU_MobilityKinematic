@@ -22,6 +22,9 @@ public class DemoManager : MonoBehaviour
         var escCallback = KeyEventManager_PC.GetKeyListener(KeyCode.Escape);
         escCallback.onTouchBegan.AddListener(() => SetFreeCameraAndCursor(escSwitch = !escSwitch));
         SetFreeCameraAndCursor(false);
+
+        if (ProjectManager.IsExists)
+            ProjectManager.Instance.UpdateSceneObj();
     }
 
     void SetFreeCameraAndCursor(bool isEnabled)
@@ -54,7 +57,7 @@ public class DemoManager : MonoBehaviour
         if (wannaIndex >=0)
         {
             Debug.LogError(wannaIndex);
-            if (!TopicManager.HasInstance || !TopicManager.Instance.topicDics.ContainsKey(wannaIndex))
+            if (!ProjectManager.HasInstance || !ProjectManager.Instance.topicDics.ContainsKey(wannaIndex))
             {
                 var topic = FindObjectsOfType<Topic>(includeInactive: true).FirstOrDefault(t => t.topicIndex == wannaIndex);
                 if (topic != null && !topic.gameObject.activeSelf)
@@ -62,7 +65,7 @@ public class DemoManager : MonoBehaviour
             }
             else
             {
-                TopicManager.Instance.SetTopic(wannaIndex);
+                ProjectManager.Instance.SetTopic(wannaIndex);
             }
         }
     }

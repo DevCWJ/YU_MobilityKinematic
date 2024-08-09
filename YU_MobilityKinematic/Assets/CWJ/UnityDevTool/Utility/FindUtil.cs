@@ -81,6 +81,19 @@ namespace CWJ
             includeDontDestroyObj = MonoBehaviourEventHelper.GetIsPlayingBeforeQuit() && !findType.Equals(typeof(SingletonHelper));
         }
 
+        public static T FindObjectFirst_ForSingleton<T>(Predicate<T> predicate = null) where T : MonoBehaviour
+        {
+            try
+            {
+                int sceneLength = UnityEngine.SceneManagement.SceneManager.sceneCount;
+            }
+            catch (UnityEngine.UnityException)
+            {
+                Debug.LogError($"{typeof(T).Name} class 의 Awake() 에서 미리 {nameof(Singleton.Core.SingletonCoreAbstract<T>.UpdateInstance)}(); 코드 작성하여 Instance를 생성해주세요.\n 또는 MainThread 콜백으로 처리하는 방법도 있습니다.");
+            }
+            return FindObjectOfType_New<T>(true, true, predicate);
+        }
+
         public static T[] FindObjects_ForSingleton<T>(Predicate<T> predicate = null) where T : MonoBehaviour
         {
             try

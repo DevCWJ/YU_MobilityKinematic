@@ -48,25 +48,24 @@ namespace CWJ
             return canvasPos;
         }
 
-        public static Vector3 WorldToCanvasPosition(this Canvas canvas, Camera camera, Vector3 worldPosition)
+        public static Vector3 WorldToRectPosition(this RectTransform rectTrf, Camera camera, Vector3 worldPosition)
         {
             var viewportPosition = camera.WorldToViewportPoint(worldPosition);
-            return canvas.ViewportToCanvasPosition(viewportPosition);
+            return rectTrf.ViewportToRectPosition(viewportPosition);
         }
 
-        public static Vector3 ScreenToCanvasPosition(this Canvas canvas, Vector3 screenPosition)
+        public static Vector3 ScreenToRectPosition(this RectTransform rectTrf, Vector3 screenPosition)
         {
             var viewportPosition = new Vector3(screenPosition.x / Screen.width,
                                                screenPosition.y / Screen.height,
                                                0);
-            return canvas.ViewportToCanvasPosition(viewportPosition);
+            return rectTrf.ViewportToRectPosition(viewportPosition);
         }
 
-        public static Vector3 ViewportToCanvasPosition(this Canvas canvas, Vector3 viewportPosition)
+        public static Vector3 ViewportToRectPosition(this RectTransform rectTrf, Vector3 viewportPosition)
         {
             var centerBasedViewPortPosition = viewportPosition - new Vector3(0.5f, 0.5f, 0);
-            var canvasRect = canvas.GetComponent<RectTransform>();
-            var scale = canvasRect.sizeDelta;
+            var scale = rectTrf.sizeDelta;
             return Vector3.Scale(centerBasedViewPortPosition, scale);
         }
     }

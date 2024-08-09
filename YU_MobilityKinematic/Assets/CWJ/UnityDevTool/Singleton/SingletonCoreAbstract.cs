@@ -99,7 +99,7 @@ namespace CWJ.Singleton.Core
 
         public static bool HasInstance => __INSTANCE != null;
 
-        public static bool IsExists => (HasInstance || FindObjects_ForSingleton<T>().Length > 0);
+        public static bool IsExists => (HasInstance || FindObjectFirst_ForSingleton<T>() != null);
 
         private bool _isInstance = false;
         public sealed override bool isInstance => _isInstance;

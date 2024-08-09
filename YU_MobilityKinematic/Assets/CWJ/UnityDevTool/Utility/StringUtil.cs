@@ -325,22 +325,32 @@ namespace CWJ
 
         public static Vector3 ConvertToVector3(string sVector)
         {
-            if (sVector.StartsWith("(") && sVector.EndsWith(")"))
+            if (sVector.StartsWith("("))
             {
-                sVector = sVector.Substring(1, sVector.Length - 2);
+                if (sVector.EndsWith(")"))
+                {
+                    sVector = sVector.Substring(1, sVector.Length - 2);
+                }
+                else if (sVector.Contains(")"))
+                {
+                    sVector = sVector.RemoveStart("(");
+                    var spl = sVector.Split(")");
+                    sVector = spl[0];
+                }
             }
+
             if (!sVector.Contains(","))
             {
                 throw new InvalidCastException();
             }
             string[] sArray = sVector.Split(',');
 
-            Vector3 result = new Vector3(
+            Vector3 resultVec = new Vector3(
                 float.Parse(sArray[0]),
                 float.Parse(sArray[1]),
                 float.Parse(sArray[2]));
 
-            return result;
+            return resultVec;
         }
 
         public static string ToStringByDetailed(this Vector2Int v)

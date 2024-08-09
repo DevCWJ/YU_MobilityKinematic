@@ -23,6 +23,12 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-1733516459-0
         - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-1897895018-0
         - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-331150226-0
+        - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-754919243-0
+        - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-7634000136617804867-510771886
+        - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-8679962706346907198-1679375571
+        - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-3948123330494278385-0
+        - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-6536768560884200269-7817625663759603306
+        - globalObjectIdString: GlobalObjectId_V1-2-94964c95b3a31a148b7062d6914226da-7634000135686927499-510771886
         values:
         - colorIndex: 0
           iconNameOrGuid: AvatarMask On Icon
@@ -34,3 +40,15 @@ MonoBehaviour:
           iconNameOrGuid: cs Script Icon
         - colorIndex: 7
           iconNameOrGuid: 
+        - colorIndex: 3
+          iconNameOrGuid: 
+        - colorIndex: 1
+          iconNameOrGuid: 
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+        - colorIndex: 0
+          iconNameOrGuid: PreMatQuad
+        - colorIndex: 0
+          iconNameOrGuid: PreMatCube
+        - colorIndex: 0
+          iconNameOrGuid: cs Script Icon
