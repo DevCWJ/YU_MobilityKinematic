@@ -51,8 +51,9 @@ public class DemoManager : MonoBehaviour
                 break;
             }
         }
-        if (wannaIndex != -1)
+        if (wannaIndex >=0)
         {
+            Debug.LogError(wannaIndex);
             if (!TopicManager.HasInstance || !TopicManager.Instance.topicDics.ContainsKey(wannaIndex))
             {
                 var topic = FindObjectsOfType<Topic>(includeInactive: true).FirstOrDefault(t => t.topicIndex == wannaIndex);

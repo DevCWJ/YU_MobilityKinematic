@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+
+using TMPro;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +18,7 @@ namespace CWJ.YU.Mobility
         [SerializeField] Button initRotBtn;
         [SerializeField] Toggle holdRotToggle;
         [SerializeField] Image lockedObj, unlockedObj;
-
+        [SerializeField] TextMeshProUGUI logTxt;
         protected override void _Awake()
         {
             leftBtn.AddLongPressLoopEvent(OnClickLeftLongPressLoop, 0.25f);
@@ -31,7 +34,8 @@ namespace CWJ.YU.Mobility
 
         public void SetTarget(Transform targetTrf)
         {
-            rotateAxes = targetTrf?.GetComponentInChildren<RotateObjByDrag>(true);
+            if (targetTrf != null)
+                rotateAxes = targetTrf.GetComponentInChildren<RotateObjByDrag>(true);
             bool hasTargetTrf = rotateAxes != null && rotateAxes.AxesPivot != null;
             if (!hasTargetTrf)
                 rotateAxes = null;
@@ -42,6 +46,7 @@ namespace CWJ.YU.Mobility
             holdRotToggle.gameObject.SetActive(hasTargetTrf);
             holdRotToggle.SetIsOnWithoutNotify(false);
             holdRotToggle.isOn = true;
+            logTxt.gameObject.SetActive(hasTargetTrf);
         }
 
         bool isHoldRot;

@@ -10,11 +10,25 @@ namespace CWJ
 {
     public static class FindUtil
     {
+        //static GameObject[] objectPooler;
+
+
+        //public static GameObject[] GetRootGameObjects_New(Predicate<GameObject> predicate = null, bool includeDontDestroyObjs = true)
+        //{
+        //    if (predicate == null)
+        //    {
+        //        return _GetRootGameObjects_New(includeDontDestroyObjs);
+        //    }
+
+        //    _GetRootGameObjects_New(includeDontDestroyObjs).
+        //}
+
+
         /// <summary>
         /// DontDestroyOnLoad <see cref="GameObject"/>까지 포함해서 반환 (비활성화된건 기본적으로 포함되어있음)
         /// </summary>
         /// <returns></returns>
-        public static GameObject[] GetRootGameObjects_New(bool includeDontDestroyObjs = true)
+        public static GameObject[] GetRootGameObjects_New(bool includeDontDestroyObjs)
         {
             int sceneLength = UnityEngine.SceneManagement.SceneManager.sceneCount;
             List<GameObject> rootObjs = new List<GameObject>();

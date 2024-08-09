@@ -7,6 +7,7 @@ using System.Linq;
 
 using UnityEngine;
 using System.Globalization;
+using System.CodeDom;
 //using Microsoft.CSharp;
 //using System.CodeDom;
 
@@ -320,6 +321,26 @@ namespace CWJ
             }
 
             return value;
+        }
+
+        public static Vector3 ConvertToVector3(string sVector)
+        {
+            if (sVector.StartsWith("(") && sVector.EndsWith(")"))
+            {
+                sVector = sVector.Substring(1, sVector.Length - 2);
+            }
+            if (!sVector.Contains(","))
+            {
+                throw new InvalidCastException();
+            }
+            string[] sArray = sVector.Split(',');
+
+            Vector3 result = new Vector3(
+                float.Parse(sArray[0]),
+                float.Parse(sArray[1]),
+                float.Parse(sArray[2]));
+
+            return result;
         }
 
         public static string ToStringByDetailed(this Vector2Int v)

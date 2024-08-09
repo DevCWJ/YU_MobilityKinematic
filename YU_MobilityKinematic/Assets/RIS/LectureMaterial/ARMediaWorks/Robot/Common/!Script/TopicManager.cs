@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEditor;
 
 namespace CWJ.YU.Mobility
 {
@@ -15,48 +16,29 @@ namespace CWJ.YU.Mobility
 
     public class TopicManager : CWJ.Singleton.SingletonBehaviour<TopicManager>
     {
-
-        public static Camera FindCamera()
-        {
-            Camera mainCamera = Camera.main;
-            if (mainCamera == null || !mainCamera.enabled)
-                mainCamera = FindObjectsOfType<Camera>().FirstOrDefault(c => c.enabled && c.CompareTag("MainCamera"));
-            return mainCamera;
-        }
-
         public const string RootPrefabName = "[CWJ.YU.Root]";
-        private static bool _IsInitRootObj;
-        [VisualizeField] static Transform Prefab_RootObj;
+        [VisualizeField] public static Transform Project_RootObj;
 
-        public static void CreateRootObj()
+        public static void InitWorld()
         {
-            if (!_IsInitRootObj)
+            if (Project_RootObj == null)
             {
-                _IsInitRootObj = true;
-
-                if (Prefab_RootObj == null)
+                var rootObj = FindUtil.GetRootGameObjects_New(false).FirstOrDefault(g => g != null && g.name.Equals(RootPrefabName));
+                if (rootObj == null)
                 {
-                    var newCommonObj = FindUtil.GetRootGameObjects_New(true).FirstOrDefault(g => g != null && g.name.Equals(RootPrefabName));
-                    if (newCommonObj == null)
-                    {
-                        newCommonObj = Instantiate(Resources.Load<GameObject>(RootPrefabName));
-                        newCommonObj.SetActive(false);
-                        newCommonObj.transform.SetParent(null, true);
-                        newCommonObj.transform.position = Vector3.zero;
-                        newCommonObj.transform.rotation = Quaternion.identity;
-                    }
-
-                    Prefab_RootObj = newCommonObj.transform;
+                    rootObj = Instantiate(Resources.Load<GameObject>(RootPrefabName));
+                    rootObj.SetActive(false);
                 }
-                UpdateInstance(isPrintLogOrPopup: false);
+                Project_RootObj = rootObj.transform;
             }
-            if (!Prefab_RootObj.gameObject.activeSelf)
-                Prefab_RootObj.gameObject.SetActive(true);
-        }
-
-        protected override void _OnDestroy()
-        {
-            _IsInitRootObj = false;
+            if (Project_RootObj.parent != null)
+                Project_RootObj.SetParent(null, true);
+            if (Project_RootObj.position != Vector3.zero)
+                Project_RootObj.position = Vector3.zero;
+            if (Project_RootObj.rotation != Quaternion.identity)
+                Project_RootObj.rotation = Quaternion.identity;
+            if (!Project_RootObj.gameObject.activeSelf)
+                Project_RootObj.gameObject.SetActive(true);
         }
 
         [SerializeField] TextMeshProUGUI titleTxt;
@@ -109,7 +91,7 @@ namespace CWJ.YU.Mobility
                 if (topicParentTrf != topic.transform.parent)
                 {
                     topic.canvasScaler.localScale = Vector3.one;
-                    topic.transform.SetParent(topicParentTrf);
+                    topic.transform.SetParent(topicParentTrf, true);
                     topic.transform.Reset();
                 }
                 return true;
@@ -117,17 +99,25 @@ namespace CWJ.YU.Mobility
             return false;
         }
 
+        static Camera FindCamera()
+        {
+            Camera mainCamera = Camera.main;
+            if (mainCamera == null || !mainCamera.enabled)
+                mainCamera = FindObjectsOfType<Camera>().FirstOrDefault(c => c.enabled && c.CompareTag("MainCamera"));
+            return mainCamera;
+        }
+
         public void SetTopic(int index)
         {
-            var mainCam = FindCamera();
-            var rootCanvas = titleTxt.GetComponentInParent<Canvas>();
-            if (rootCanvas.worldCamera != mainCam)
-                rootCanvas.worldCamera = mainCam;
-            var needUpdateObjs = FindUtil.FindInterfaces<INeedSceneObj>(false);
-            foreach (var obj in needUpdateObjs)
+            if (!topicDics.TryGetValue(curTopicIndex, out var targetTopic))
             {
-                obj.SetCamera(mainCam);
-                obj.SetCanvas(rootCanvas);
+                Debug.LogError("TopicManager에 아직 등록되지 않은: index" + index);
+                return;
+            }
+            if (targetTopic == null)
+            {
+                Debug.LogError("TopicManager에 등록은 됐으나 NULL: index" + index);
+                return;
             }
 
             RotateObjByUI.Instance.SetTarget(null);
@@ -135,8 +125,25 @@ namespace CWJ.YU.Mobility
             {
                 topic.Init();
             }
+
             curTopicIndex = index;
-            topicDics[curTopicIndex].Next();
+
+            var mainCam = FindCamera();
+
+            var rootCanvas = titleTxt.GetComponentInParent<Canvas>(true);
+            if (rootCanvas.worldCamera != mainCam)
+                rootCanvas.worldCamera = mainCam;
+
+            foreach (var obj in FindUtil.FindInterfaces<INeedSceneObj>(true))
+            {
+                obj.SetCamera(mainCam);
+                obj.SetCanvas(rootCanvas);
+            }
+
+            targetTopic.Next();
+#if UNITY_EDITOR
+            EditorGUIUtility.PingObject(Selection.activeObject = targetTopic.gameObject);
+#endif
         }
     }
 }

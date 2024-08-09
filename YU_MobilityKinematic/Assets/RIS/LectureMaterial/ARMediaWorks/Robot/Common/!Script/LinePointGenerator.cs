@@ -78,7 +78,7 @@ namespace CWJ
             public Vector3 lastFromPos;
             public Vector3 lastToPos;
 
-            public LinePointIns(bool isLineLoop, Transform fromTrf, Transform toTrf, bool isLineRndrSingle, LineRenderer lineRndr, LineRenderer capRndr, float arrowHeight, float arrowWidth)
+            public LinePointIns(bool isLineLoop, Transform fromTrf, Transform toTrf, bool isLineRndrSingle, LineRenderer lineRndr, LineRenderer capRndr, float arrowWidth, float arrowHeight)
             {
                 this.fromTrf = fromTrf;
                 this.toTrf = toTrf;
@@ -96,8 +96,8 @@ namespace CWJ
 
                 lastFromPos = Vector3.zero;
                 lastToPos = Vector3.zero;
-                this.arrowHeight = arrowHeight;
                 this.arrowWidth = arrowWidth;
+                this.arrowHeight = arrowHeight;
             }
 
             public bool CheckIsVerified()
@@ -141,147 +141,61 @@ namespace CWJ
 
         string[] pointChildPrefabNames;
 
-        public float arrowHeight = 0.25f;
-        public float arrowWidth = 0.25f;
-        public float animationTime = 1.0f;
+        public float defaultArrowHeight = 0.025f;
+        public float defaultArrowWidth = 0.025f;
 
-        /// <summary>
-        /// 포인트지점 Transform은 모두 활성화 상태여야함
-        /// </summary>
-        /// <param name="pointDatas"></param>
-        /// <param name="isLineLoop"></param>
-        /// <param name="hasAnimation"></param>
-        /// <param name="arrowHeight"></param>
-        /// <param name="arrowWidth"></param>
-        /// <param name="animTime"></param>
-        /// <returns></returns>
         [InvokeButton]
-        public static int Create(PointData[] pointDatas, bool isLineLoop, bool hasAnimation, float arrowHeight = -1, float arrowWidth=-1, float animTime=-1)
+        public static int Generate(PointData[] pointDatas, bool isLineLoop, float animTime, float arrowWidth = -1, float arrowHeight = -1)
         {
-            var cacheID = GetCacheID(isLineLoop, pointDatas);
-            var helper = LinePointGenerator.Instance;
-            arrowHeight = arrowHeight == -1 ? helper.arrowHeight : arrowHeight;
-            arrowWidth = arrowWidth == -1 ? helper.arrowWidth : arrowWidth;
+            bool hasAnimation = animTime > 0.0f;
+            return _Generate(pointDatas, isLineLoop, hasAnimation, animTime, arrowWidth, arrowHeight);
+        }
 
-            if (!helper._CacheData.TryGetValue(cacheID, out var instanceList))
+        [InvokeButton]
+        void TestGenerate(bool isLoop, bool hasAnim)
+        {
+            Generate(testPointDatas.ToArray(), isLoop, hasAnim ? 1 : 0);
+        }
+
+        public void DestroyLineObj(int cacheID)
+        {
+            if (!_CacheData.TryGetValue(cacheID, out var insArr))
             {
-                var newInsList = new List<LinePointIns>();
-
-                for (int i = 0; i < pointDatas.Length; i++)
+                return;
+            }
+            insArr.ForEach(ins =>
+            {
+                if (ins.fromTrf != null && ins.fromTrf.childCount > 0)
                 {
-                    var next = i + 1;
-                    if (next >= pointDatas.Length)
+                    int childCnt = ins.fromTrf.childCount;
+                    for (int i = 0; i < childCnt; i++)
                     {
-                        if (isLineLoop)
+                        var child = ins.fromTrf.GetChild(i);
+                        if (child == null)
                         {
-                            next = 0;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    var fromTrf = pointDatas[i].pointTrf;
-                    var toTrf = pointDatas[next].pointTrf;
-
-                    if (fromTrf == null || toTrf == null)
-                    {
-                        Debug.LogError("LinePointGenerator.Create : from to 어쨋음?");
-                        continue;
-                    }
-
-                    var color = pointDatas[i].color;
-                    if (color.a == 0) //실수일것
-                        color = new Color(color.r, color.g, color.b, 1f);
-
-                    MeshRenderer pointObjRndr = Instantiate(helper.pointPrefab);
-                    pointObjRndr.transform.SetParent(null, true);
-                    pointObjRndr.transform.localScale = Vector3.one * arrowWidth * 2;
-                    pointObjRndr.transform.SetParent(fromTrf, true);
-                    pointObjRndr.transform.localPosition = Vector3.zero;
-                    var pointColor = new Color(color.r, color.g, color.b, 0.9f);
-                    pointObjRndr.material.SetColor("_BaseColor", pointColor);
-
-                    TextMeshPro text = Instantiate(helper.prefab_text);
-                    text.transform.SetParent(null, true);
-                    text.transform.localScale = Vector3.one * arrowWidth * 10;
-                    text.transform.SetParent(fromTrf, true);
-                    text.transform.localPosition = Vector3.zero;
-                    text.transform.localRotation = Quaternion.identity;
-                    text.SetText(fromTrf.gameObject.name);
-                    var textColor = new Color(color.r, color.g, color.b, 1);
-                    text.color = textColor;
-
-                    var lrObj = Instantiate(helper.linePrefab, helper.transform);
-
-                    bool isSingle = true;
-                    LineRenderer lineRenderer = lrObj.GetComponent<LineRenderer>();
-                    LineRenderer capRenderer = null;
-
-                    if (lineRenderer == null)
-                    {
-                        lineRenderer = lrObj.transform.GetChild(0).GetComponent<LineRenderer>();
-                        capRenderer = lrObj.transform.GetChild(1).GetComponent<LineRenderer>();
-                        if (lineRenderer == null)
-                        {
-                            Debug.LogError("No line renderer found in the arrow object");
-                            instanceList[i] = default(LinePointIns);
                             continue;
                         }
-                        if (capRenderer != null)
+                        string childName= child.gameObject.name;
+                        if (pointChildPrefabNames.IsExists(n=> childName.Contains(n)))
                         {
-                            isSingle = false;
+                            Destroy(child.gameObject);
                         }
                     }
-
-                    var lpIns = new LinePointIns( isLineLoop, fromTrf, toTrf, isSingle, lineRenderer, capRenderer, arrowHeight, arrowWidth);
-                    if (!lpIns.isVerified)
-                    {
-#if UNITY_EDITOR
-                        Debug.LogError("제작중 문제가 있어 취소");
-#endif
-                        return -1;
-                    }
-                    newInsList.Add(lpIns);
                 }
-
-                instanceList = newInsList.ToArray();
-                helper._CacheData.Add(cacheID, instanceList);
-            }
-
-            float animationTime = animTime == -1 ? helper.animationTime : animTime;
-
-            for (int i = 0; i < instanceList.Length; ++i)
-            {
-                var lpIns = instanceList[i];
-                lpIns.arrowHeight = arrowHeight;
-                lpIns.arrowWidth = arrowWidth;
-                if (lpIns.CheckIsVerified())
+                if (ins.lineRndr != null)
                 {
-                    helper.GenerateLineAndPoint(lpIns, pointDatas[i].color, hasAnimation, animationTime);
+                    if (ins.lineRndr.transform.parent == Instance.transform)
+                        Destroy(ins.lineRndr.gameObject);
+                    else
+                        Destroy(ins.lineRndr.transform.parent.gameObject);
                 }
-                else
-                {
-#if UNITY_EDITOR
-                    Debug.LogError("제작중 문제가 있어 취소");
-#endif
-                }
-            }
-
-            return cacheID;
+            });
+            _CacheData.Remove(cacheID);
         }
-
-        [InvokeButton]
-        void TestCreate(bool isLoop, bool hasAnim)
-        {
-            Create(testPointDatas.ToArray(), isLoop, hasAnim);
-        }
-
-        List<int> willRemoveList = null;
 
         protected override void _Awake()
         {
+            willRemoveList = null;
             pointChildPrefabNames = new string[]
             {
                 pointPrefab.gameObject.name,
@@ -289,6 +203,7 @@ namespace CWJ
             };
         }
 
+        List<int> willRemoveList;
         private void LateUpdate()
         {
             if (_CacheData.Count > 0)
@@ -330,34 +245,176 @@ namespace CWJ
             }
         }
 
-        public void DestroyLineObj(int cacheID)
-        {
-            if (!_CacheData.TryGetValue(cacheID, out var insArr))
-            {
-                return;
-            }
-            insArr.Do(ins =>
-            {
-                if (ins.fromTrf != null && ins.fromTrf.childCount > 0)
-                {
-                    for (int i = 0; i < pointChildPrefabNames.Length; i++)
-                    {
-                        var child = ins.fromTrf.Find(pointChildPrefabNames[i]);
-                        Destroy(child);
-                    }
-                }
-                if (ins.lineRndr != null)
-                {
-                    if (ins.lineRndr.transform.parent == Instance.transform)
-                        Destroy(ins.lineRndr.gameObject);
-                    else
-                        Destroy(ins.lineRndr.transform.parent.gameObject);
-                }
-            });
-            _CacheData.Remove(cacheID);
-        }
+        #region Generate
 
-        void GenerateLineAndPoint(LinePointIns linePointIns, Color color, bool hasAnimation, float animationTime)
+        static int _Generate(PointData[] pointDatas, bool isLineLoop, bool hasAnimation, float animTime, float arrowWidth, float arrowHeight)
+        {
+            var cacheID = GetCacheID(isLineLoop, pointDatas);
+            var helper = LinePointGenerator.Instance;
+            arrowWidth = arrowWidth == -1 ? helper.defaultArrowWidth : arrowWidth;
+            arrowHeight = arrowHeight == -1 ? helper.defaultArrowHeight : arrowHeight;
+
+            if (!helper._CacheData.TryGetValue(cacheID, out var instanceList))
+            {
+                var newInsList = new List<LinePointIns>();
+
+                for (int i = 0; i < pointDatas.Length; i++)
+                {
+                    var next = i + 1;
+                    if (next >= pointDatas.Length)
+                    {
+                        if (isLineLoop)
+                        {
+                            next = 0;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    var fromTrf = pointDatas[i].pointTrf;
+                    var toTrf = pointDatas[next].pointTrf;
+
+                    if (fromTrf == null || toTrf == null)
+                    {
+                        Debug.LogError("LinePointGenerator.Create : from to 어쨋음?");
+                        continue;
+                    }
+
+                    var color = pointDatas[i].color;
+                    if (color.a == 0) //실수일것
+                        color = new Color(color.r, color.g, color.b, 1f);
+
+                    var lrObj = Instantiate(helper.linePrefab, helper.transform);
+
+                    bool isSingle = true;
+                    LineRenderer lineRenderer = lrObj.GetComponent<LineRenderer>();
+                    LineRenderer capRenderer = null;
+
+                    if (lineRenderer == null)
+                    {
+                        lineRenderer = lrObj.transform.GetChild(0).GetComponent<LineRenderer>();
+                        capRenderer = lrObj.transform.GetChild(1).GetComponent<LineRenderer>();
+                        if (lineRenderer == null)
+                        {
+                            Debug.LogError("No line renderer found in the arrow object");
+                            instanceList[i] = default(LinePointIns);
+                            continue;
+                        }
+                        if (capRenderer != null)
+                        {
+                            isSingle = false;
+                        }
+                    }
+
+                    var lpIns = new LinePointIns(isLineLoop, fromTrf, toTrf, isSingle, lineRenderer, capRenderer, arrowWidth, arrowHeight);
+                    if (!lpIns.isVerified)
+                    {
+#if UNITY_EDITOR
+                        Debug.LogError("제작중 문제가 있어 취소");
+#endif
+                        return -1;
+                    }
+                    newInsList.Add(lpIns);
+                }
+
+                instanceList = newInsList.ToArray();
+                helper._CacheData.Add(cacheID, instanceList);
+            }
+            string pointPrefabName = helper.pointPrefab.name;
+            string textPrefabName = helper.prefab_text.name;
+
+            for (int i = 0; i < instanceList.Length; ++i)
+            {
+                var lpIns = instanceList[i];
+                lpIns.arrowHeight = arrowHeight;
+                lpIns.arrowWidth = arrowWidth;
+                if (lpIns.CheckIsVerified())
+                {
+                    Transform fromTrf = lpIns.fromTrf;
+                    Color color = pointDatas[i].color;
+                    string fromTrfName = fromTrf.gameObject.name.Trim();
+
+                    int childCnt = fromTrf.childCount;
+
+                    int pointChildIndex = -1;
+                    int textChildIndex = -1;
+
+                    for (int j = 0; j < childCnt; j++)
+                    {
+                        var child = fromTrf.GetChild(j);
+                        if (child != null)
+                        {
+                            string childName = child.gameObject.name;
+                            if (childName.Contains(pointPrefabName))
+                                pointChildIndex = j;
+                            else if (childName.Contains(textPrefabName))
+                                textChildIndex = j;
+                        }
+                    }
+
+                    if (!fromTrfName.ToUpper().Contains("[X:P]"))
+                    {
+                        MeshRenderer pointObjRndr = null;
+                        if (pointChildIndex != -1)
+                            pointObjRndr = fromTrf.GetChild(pointChildIndex).GetComponent<MeshRenderer>();
+                        if (pointObjRndr == null)
+                        {
+                            pointObjRndr = Instantiate(helper.pointPrefab, null);
+                            pointObjRndr.transform.localScale = Vector3.one * arrowWidth * 2;
+                            pointObjRndr.transform.SetParent(fromTrf.transform);
+                            pointObjRndr.transform.localPosition = Vector3.zero;
+                            var pointColor = new Color(color.r, color.g, color.b, 0.9f);
+                            pointObjRndr.material.SetColor("_BaseColor", pointColor);
+                        }
+                    }
+
+                    if (!fromTrfName.ToUpper().Contains("[X:T]"))
+                    {
+                        string textContent = fromTrfName;
+                        Vector3? localPivot = null;
+                        if (fromTrfName.Contains("\\"))
+                        {
+                            var splits = fromTrfName.Split("\\");
+                            textContent = splits[0].Trim();
+                            string comment = splits[1].Trim();
+                            if (comment.StartsWith("("))
+                                localPivot = StringUtil.ConvertToVector3(comment);
+                        }
+                        TextMeshPro textObj = null;
+                        if (pointChildIndex != -1)
+                            textObj = fromTrf.GetChild(textChildIndex).GetComponent<TextMeshPro>();
+                        if (textObj == null)
+                        {
+                            textObj = Instantiate(helper.prefab_text, null);
+                            textObj.transform.localScale = Vector3.one * arrowWidth * 10;
+                            textObj.transform.SetParent(fromTrf.transform);
+                            textObj.transform.localRotation = Quaternion.identity;
+                            var textColor = new Color(color.r, color.g, color.b, 1);
+                            textObj.color = textColor;
+                        }
+                        if (localPivot != null)
+                            textObj.rectTransform.pivot = localPivot.Value;
+                        textObj.transform.localPosition = Vector3.zero;
+                        textObj.SetText(textContent);
+                    }
+
+                    helper.CreateLineAndPoint(lpIns, color, hasAnimation, animTime);
+                }
+                else
+                {
+#if UNITY_EDITOR
+                    Debug.LogError("제작중 문제가 있어 취소");
+#endif
+                }
+            }
+
+            return cacheID;
+        }
+  
+
+        void CreateLineAndPoint(LinePointIns linePointIns, Color color, bool hasAnimation, float animationTime)
         {
             linePointIns.isGenerateOrAnimDone = false;
             
@@ -369,10 +426,12 @@ namespace CWJ
             linePointIns.lastToPos = curToPos;
             if (linePointIns.capRndr != null)
             {
+                linePointIns.capRndr.material.color = color1;
                 linePointIns.capRndr.material.SetColor("_BaseColor", color1);
                 linePointIns.capRndr.startColor = color1;
                 linePointIns.capRndr.endColor = color1;
             }
+            linePointIns.lineRndr.material.color = color1;
             linePointIns.lineRndr.material.SetColor("_BaseColor", color1);
             linePointIns.lineRndr.startColor = color1;
             linePointIns.lineRndr.endColor = color1;
@@ -382,7 +441,7 @@ namespace CWJ
 #if UNITY_2023_1_OR_NEWER
                 _= _GenerateLinePointWithAnimation(linePointIns, animationTime);
 #else
-                StartCoroutine(IE_GenerateLinePointWithAnimation(linePointIns, animationTime));
+                StartCoroutine(IE_CreateLinePointWithAnimation(linePointIns, animationTime));
 #endif
                 return;
             }
@@ -393,10 +452,10 @@ namespace CWJ
             return;
         }
 
-        void UpdateLinePos(LinePointIns linePointIns, Vector3 from, Vector3 to)
+        void UpdateLinePos(LinePointIns linePointIns, Vector3 _from, Vector3 _to)
         {
-            linePointIns.lastFromPos = from;
-            linePointIns.lastToPos = to;
+            linePointIns.lastFromPos = _from;
+            linePointIns.lastToPos = _to;
             //linePointIns.isGenerateOrAnimDone = false;
             var lineRenderer = linePointIns.lineRndr;
             var capRenderer = linePointIns.capRndr;
@@ -404,39 +463,44 @@ namespace CWJ
             float arrowHeight = linePointIns.arrowHeight;
             float arrowWidth = linePointIns.arrowWidth;
 
-            var distance = Vector3.Distance(from, to);
+
             var minLen = Math.Sqrt(arrowHeight * arrowHeight + arrowWidth * arrowWidth);
+
+            var distance = Vector3.Distance(_from, _to);
 
             if (distance < minLen)
             {
                 arrowHeight = distance;
             }
-
-            var pointC = to + arrowHeight * (from - to) / distance;
+            if (distance == 0)
+            {
+                distance = 0.0001f;
+            }
+            var pointC = _to + arrowHeight * (_from - _to) / distance;
 
             var camPoint = (Instance.targetCameraTrf ?? Camera.main.transform).position;
-            var s1 = from - camPoint;
-            var s2 = to - camPoint;
+            var camToFrom = _from - camPoint;
+            var camToTo = _to - camPoint;
 
-            var normal = Vector3.Cross(s1, s2).normalized;
+            var normal = Vector3.Cross(camToFrom, camToTo).normalized;
 
             var pointD = pointC + (arrowWidth * 1.2f) * normal;
             var pointE = pointC - (arrowWidth * 1.2f) * normal;
 
-            lineRenderer.SetPosition(0, from);
+            lineRenderer.SetPosition(0, _from);
             lineRenderer.SetPosition(1, pointC);
 
             if (single)
             {
                 lineRenderer.SetPosition(2, pointD);
-                lineRenderer.SetPosition(3, to);
+                lineRenderer.SetPosition(3, _to);
                 lineRenderer.SetPosition(4, pointE);
                 lineRenderer.SetPosition(5, pointD);
             }
             else
             {
                 capRenderer.SetPosition(0, pointD);
-                capRenderer.SetPosition(1, to);
+                capRenderer.SetPosition(1, _to);
                 capRenderer.SetPosition(2, pointE);
                 //capRenderer.SetPosition(3, pointD);
             }
@@ -448,7 +512,7 @@ namespace CWJ
 #if UNITY_2023_1_OR_NEWER
         async Awaitable _GenerateLinePointWithAnimation(LinePointIns linePointIns, float animationTime)
 #else
-        IEnumerator IE_GenerateLinePointWithAnimation(LinePointIns linePointIns, float animationTime)
+        IEnumerator IE_CreateLinePointWithAnimation(LinePointIns linePointIns, float animationTime)
 #endif
         {
             linePointIns.isGenerateOrAnimDone = false;
@@ -473,18 +537,20 @@ namespace CWJ
 
             var minLen = Math.Sqrt(arrowHeight * arrowHeight + arrowWidth * arrowWidth);
             var distance = Vector3.Distance(_from, _to);
-
             if (distance < arrowHeight)
             {
                 arrowHeight = distance;
             }
+            if (distance == 0)
+            {
+                distance = 0.0001f;
+            }
 
-            var dir = _to - _from;
             var camPoint = (Instance.targetCameraTrf ?? Camera.main.transform).position;
-            var s1 = _from - camPoint;
-            var s2 = _to - camPoint;
+            var camToFrom = _from - camPoint;
+            var camToTo = _to - camPoint;
 
-            var normal = Vector3.Cross(s1, s2).normalized;
+            var normal = Vector3.Cross(camToFrom, camToTo).normalized;
 
             Vector3 from() => linePointIns.fromTrf.position;
             Vector3 to() => linePointIns.toTrf.position;
@@ -536,5 +602,6 @@ namespace CWJ
 
             linePointIns.isGenerateOrAnimDone = true;
         }
+        #endregion Generate
     }
 }

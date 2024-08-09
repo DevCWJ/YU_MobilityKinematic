@@ -14,16 +14,21 @@ namespace CWJ.YU.Mobility
 
         bool isInstantiateInit = false;
         public Transform canvasScaler;
+        [GetComponentInChildren, SerializeField] LineConfigure[] drawers;
 
-        private void OnEnable()
+        private IEnumerator Start()
         {
             if (!isInstantiateInit)
             {
                 isInstantiateInit = true;
-                if (!TopicManager.HasInstance)
-                    TopicManager.CreateRootObj();
+
+                TopicManager.InitWorld();
+                yield return new WaitUntil(() => TopicManager.Project_RootObj != null && TopicManager.Project_RootObj.gameObject.activeSelf);
+
                 TopicManager.Instance.TryAddToDict(this);
-                TopicManager.Instance.SetTopic(topicIndex); //최초 생성직후에만 SetTopic해야함 안그러면 무한루프
+
+                TopicManager.Instance.SetTopic(topicIndex); //Topic 최초 생성직후에만 SetTopic.
+
                 if (string.IsNullOrEmpty(topicTitle) || !topicTitle.Contains(')'))
                 {
                     Debug.LogError($"ERR : Topic[{topicIndex}] - {nameof(topicTitle)} null!\n{topicTitle}", gameObject);
@@ -31,7 +36,7 @@ namespace CWJ.YU.Mobility
                 else
                 {
                     int contentIndex = int.Parse(topicTitle.Trim().Split(')', 2)[0].Replace("#", string.Empty));
-                    if((contentIndex - 1) != topicIndex)
+                    if ((contentIndex - 1) != topicIndex)
                     {
                         Debug.LogError($"ERR : Topic[{topicIndex}] - {nameof(topicIndex)}가 {nameof(topicTitle)}과 다름. 확인할것." +
                                         $"\n{topicIndex} != {topicTitle}", gameObject);
@@ -46,13 +51,13 @@ namespace CWJ.YU.Mobility
             public string subTitle;
             public bool isInit;
             public string context;
-            public Transform activateTrf;
+            public LineConfigure lineConfigure;
             public Transform rotateTargetTrf;
-
+            public Transform[] activeSyncTrfs;
             public void Enable()
             {
-                if (activateTrf != null)
-                    activateTrf.gameObject.SetActive(true);
+                if (activeSyncTrfs.LengthSafe() > 0)
+                    activeSyncTrfs.ForEach(t => t.gameObject.SetActive(true));
                 RotateObjByUI.Instance.SetTarget(rotateTargetTrf);
                 if (subTitle == null)
                     Debug.LogError("subTitle is null");
@@ -60,6 +65,9 @@ namespace CWJ.YU.Mobility
                 if (context == null)
                     Debug.LogError("context is null");
                 TopicManager.Instance.SetContextTxt(context);
+
+                if (lineConfigure != null)
+                    lineConfigure.Draw();
             }
 
             public void Disable(bool isForAllInit = false)
@@ -70,16 +78,11 @@ namespace CWJ.YU.Mobility
                     if (!isForAllInit)
                         RotateObjByUI.Instance.SetTarget(null);
                 }
-                if (activateTrf != null)
-                    activateTrf.gameObject.SetActive(false);
-            }
+                if (activeSyncTrfs.LengthSafe() > 0)
+                    activeSyncTrfs.ForEach(t => t.gameObject.SetActive(false));
 
-            public Scenario(Scenario copySource)
-            {
-                this.activateTrf = copySource.activateTrf;
-                this.rotateTargetTrf = copySource.rotateTargetTrf;
-                this.subTitle = copySource.subTitle;
-                this.context = copySource.context;
+                if (lineConfigure != null)
+                    lineConfigure.DisableDraw();
             }
         }
 
@@ -115,13 +118,14 @@ namespace CWJ.YU.Mobility
 
             if (0 <= curScenarioIndex && curScenarioIndex < scenarioLength)
             {
-                scenarios[curScenarioIndex].Disable();
+
+                scenarios[curScenarioIndex]?.Disable();
             }
 
             if (0 <= toScenarioIndex && toScenarioIndex < scenarioLength)
             {
                 curScenarioIndex = toScenarioIndex;
-                scenarios[curScenarioIndex].Enable();
+                scenarios[curScenarioIndex]?.Enable();
             }
         }
 
